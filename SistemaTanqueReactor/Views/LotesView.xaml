@@ -7,11 +7,9 @@
         <Style x:Key="InputOscuro" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
             <Setter Property="Foreground" Value="#0F172A"/>
             <Setter Property="CaretBrush" Value="#0F172A"/>
-            <Setter Property="FontSize" Value="14"/>
         </Style>
         <Style x:Key="DateOscuro" TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
             <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="FontSize" Value="14"/>
         </Style>
     </UserControl.Resources>
 
@@ -56,11 +54,11 @@
         </Border>
 
         <Border Grid.Row="1" Background="White" CornerRadius="14" BorderBrush="#E2E8F0" BorderThickness="1" ClipToBounds="True">
-            <DataGrid ItemsSource="{Binding Lotes}" AutoGenerateColumns="False"
+            <DataGrid x:Name="DgLotes" ItemsSource="{Binding Lotes}" AutoGenerateColumns="False"
                       CanUserAddRows="False" HeadersVisibility="Column" BorderThickness="0"
-                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
-                      AlternatingRowBackground="#F8FAFC" RowBackground="White"
-                      RowHeight="44" ColumnHeaderHeight="46" FontSize="13" Foreground="#0F172A">
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                      RowHeight="46" ColumnHeaderHeight="46" FontSize="13" Foreground="#0F172A"
+                      LoadingRow="DgLotes_LoadingRow">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#F1F5F9"/>
@@ -74,11 +72,10 @@
                 </DataGrid.ColumnHeaderStyle>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Nº Lote" Binding="{Binding NumeroLote}" Width="*" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Bolsas inicial" Binding="{Binding CantidadBolsasInicial}" Width="110" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Disponible" Binding="{Binding CantidadBolsasDisponible}" Width="100" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Producido" Binding="{Binding ProduccionBolsas}" Width="100" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Stock (kg)" Binding="{Binding StockKg, StringFormat={}{0:N0}}" Width="100" IsReadOnly="True"/>
-                    <DataGridTemplateColumn Header="Despachado" Width="110">
+                    <DataGridTextColumn Header="Bolsas inicial" Binding="{Binding CantidadBolsasInicial}" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Disponible" Binding="{Binding CantidadBolsasDisponible}" Width="110" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Stock (kg)" Binding="{Binding StockKg, StringFormat={}{0:N0}}" Width="110" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="Despachado" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding Despachado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -88,7 +85,6 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Fecha ingreso" Binding="{Binding FechaIngreso, StringFormat=dd/MM/yyyy}" Width="120" IsReadOnly="True"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

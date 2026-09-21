@@ -3,47 +3,48 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaTanqueReactor.Models;
 using SistemaTanqueReactor.Services;
+using System.Windows;
 
 namespace SistemaTanqueReactor.ViewModels;
 
 public partial class HistorialViewModel : ObservableObject
 {
-    private readonly CargaService _cargaService;
+    private readonly ProduccionService _service;
 
-    [ObservableProperty]
-    private ObservableCollection<CargaReactor> _cargas = new();
+    [ObservableProperty] private ObservableCollection<RegistroProduccion> _registros = new();
+    [ObservableProperty] private DateTime? _filtroDesde = DateTime.Today.AddDays(-30);
+    [ObservableProperty] private DateTime? _filtroHasta = DateTime.Today;
+    [ObservableProperty] private string _filtroLote = "";
+    [ObservableProperty] private string _filtroTurno = "Todos";
+    [ObservableProperty] private bool _isLoading;
+    [ObservableProperty] private string _mensaje = "";
 
-    [ObservableProperty]
-    private DateTime? _filtroFecha = DateTime.Today;
+    public ObservableCollection<string> TurnosFiltro { get; } = new() { "Todos", "I", "II" };
 
-    [ObservableProperty]
-    private ObservableCollection<Turno> _turnos = new();
-
-    [ObservableProperty]
-    private Turno? _filtroTurno;
-
-    [ObservableProperty]
-    private bool _isLoading;
-
-    [ObservableProperty]
-    private string _mensaje = "";
-
-    public HistorialViewModel(CargaService cargaService)
+    public HistorialViewModel(ProduccionService service)
     {
-        _cargaService = cargaService;
+        _service = service;
     }
 
-    public async Task CargarDatosAsync()
+    public async Task CargarDatosAsync() => await BuscarAsync();
+
+    [RelayCommand]
+    private async Task Buscar() => await BuscarAsync();
+
+    private async Task BuscarAsync()
     {
         try
         {
             IsLoading = true;
-            Mensaje = "Cargando historial...";
+            Mensaje = "Cargando...";
 
-            var turnos = await _cargaService.ObtenerTurnosAsync();
-            Turnos = new ObservableCollection<Turno>(turnos);
+            var lista = await _service.ObtenerTodosRegistrosAsync(
+                FiltroDesde, FiltroHasta,
+                string.IsNullOrWhiteSpace(FiltroLote) ? null : FiltroLote.Trim(),
+                FiltroTurno == "Todos" ? null : FiltroTurno);
 
-            await BuscarAsync();
+            Registros = new ObservableCollection<RegistroProduccion>(lista);
+            Mensaje = $"{lista.Count} registro(s)";
         }
         catch (Exception ex)
         {
@@ -56,35 +57,37 @@ public partial class HistorialViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task Buscar()
+    private async Task LimpiarFiltros()
     {
+        FiltroDesde = DateTime.Today.AddDays(-30);
+        FiltroHasta = DateTime.Today;
+        FiltroLote = "";
+        FiltroTurno = "Todos";
         await BuscarAsync();
-    }
-
-    private async Task BuscarAsync()
-    {
-        try
-        {
-            IsLoading = true;
-            var lista = await _cargaService.ObtenerCargasAsync(FiltroFecha, FiltroTurno?.IdTurno);
-            Cargas = new ObservableCollection<CargaReactor>(lista);
-            Mensaje = $"{lista.Count} carga(s) encontrada(s)";
-        }
-        catch (Exception ex)
-        {
-            Mensaje = $"Error al buscar: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
     }
 
     [RelayCommand]
-    private async Task LimpiarFiltros()
+    private async Task Eliminar(RegistroProduccion? reg)
     {
-        FiltroFecha = DateTime.Today;
-        FiltroTurno = null;
-        await BuscarAsync();
+        if (reg == null) return;
+
+        var ok = MessageBox.Show(
+            $"¿Eliminar registro?\n\nLote: {reg.NumeroLote}\nFecha: {reg.FechaProduccion:dd/MM/yyyy}\nTurno: {reg.Turno}\nCantidad: {reg.CantidadBolsas} bolsas\n\nSe devolverá el stock al lote.",
+            "Confirmar eliminación",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (ok != MessageBoxResult.Yes) return;
+
+        try
+        {
+            await _service.EliminarRegistroAsync(reg.IdRegistro);
+            MessageBox.Show("Registro eliminado y stock restaurado.", "Listo", MessageBoxButton.OK, MessageBoxImage.Information);
+            await BuscarAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

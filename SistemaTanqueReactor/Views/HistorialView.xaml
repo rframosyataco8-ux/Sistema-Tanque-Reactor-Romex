@@ -3,68 +3,112 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
-    <DockPanel>
+    <UserControl.Resources>
+        <Style x:Key="DateOscuro" TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
+            <Setter Property="Foreground" Value="#0F172A"/>
+        </Style>
+        <Style x:Key="ComboOscuro" TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
+            <Setter Property="Foreground" Value="#0F172A"/>
+        </Style>
+        <Style x:Key="InputOscuro" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+            <Setter Property="Foreground" Value="#0F172A"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
         <!-- Filtros -->
-        <Border DockPanel.Dock="Top" Style="{StaticResource ModernCard}" Margin="0,0,0,20">
+        <Border Grid.Row="0" Background="White" CornerRadius="14" Padding="20" Margin="0,0,0,16"
+                BorderBrush="#E2E8F0" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="180"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Fecha:" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                <DatePicker Grid.Column="2" SelectedDate="{Binding FiltroFecha}" Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
-
-                <TextBlock Grid.Column="4" Text="Turno:" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                <ComboBox Grid.Column="6" 
-                          ItemsSource="{Binding Turnos}"
-                          SelectedItem="{Binding FiltroTurno}"
-                          DisplayMemberPath="Nombre"
-                          materialDesign:HintAssist.Hint="Todos"
-                          Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
-
-                <StackPanel Grid.Column="8" Orientation="Horizontal">
-                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding BuscarCommand}" Content="Buscar" Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource OutlineButton}" Command="{Binding LimpiarFiltrosCommand}" Content="Limpiar"/>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Desde" Style="{StaticResource FieldLabel}"/>
+                    <DatePicker SelectedDate="{Binding FiltroDesde}" Style="{StaticResource DateOscuro}" Height="40"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Hasta" Style="{StaticResource FieldLabel}"/>
+                    <DatePicker SelectedDate="{Binding FiltroHasta}" Style="{StaticResource DateOscuro}" Height="40"/>
+                </StackPanel>
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="Lote" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding FiltroLote, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputOscuro}" Height="40"
+                             materialDesign:HintAssist.Hint="Buscar lote..."/>
+                </StackPanel>
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="Turno" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox ItemsSource="{Binding TurnosFiltro}" SelectedItem="{Binding FiltroTurno}"
+                              Style="{StaticResource ComboOscuro}" Height="40"/>
+                </StackPanel>
+                <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding BuscarCommand}"
+                            Content="Buscar" Height="40" Padding="18,0" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource OutlineButton}" Command="{Binding LimpiarFiltrosCommand}"
+                            Content="Limpiar" Height="40"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Resultado -->
-        <TextBlock DockPanel.Dock="Top" Text="{Binding Mensaje}" 
-                   Margin="0,0,0,12" Foreground="{StaticResource TextSecondaryBrush}"/>
+        <TextBlock Grid.Row="1" Text="{Binding Mensaje}" Margin="0,0,0,10"
+                   Foreground="#64748B" FontSize="13"/>
 
-        <!-- Tabla de historial -->
-        <Border Style="{StaticResource ModernCard}" Padding="0">
-            <DataGrid ItemsSource="{Binding Cargas}"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      IsReadOnly="True"
-                      HeadersVisibility="Column"
-                      materialDesign:DataGridAssist.CellPadding="14,10"
-                      materialDesign:DataGridAssist.ColumnHeaderPadding="14,12">
+        <!-- Tabla registros -->
+        <Border Grid.Row="2" Background="White" CornerRadius="14" BorderBrush="#E2E8F0" BorderThickness="1" ClipToBounds="True">
+            <DataGrid ItemsSource="{Binding Registros}" AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" HeadersVisibility="Column" BorderThickness="0"
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
+                      AlternatingRowBackground="#F8FAFC" RowBackground="White"
+                      RowHeight="44" ColumnHeaderHeight="46" FontSize="13" Foreground="#0F172A">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F1F5F9"/>
+                        <Setter Property="Foreground" Value="#1E293B"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="14,10"/>
+                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, StringFormat='dd/MM/yyyy'}" Width="100"/>
-                    <DataGridTextColumn Header="Turno" Binding="{Binding Turno.Nombre}" Width="110"/>
-                    <DataGridTextColumn Header="N° Carga" Binding="{Binding NumeroCargaDelTurno}" Width="80"/>
-                    <DataGridTextColumn Header="Operario" Binding="{Binding Operario.NombreCompleto}" Width="160"/>
-                    <DataGridTextColumn Header="Tanque" Binding="{Binding NumeroTanque}" Width="70"/>
-                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="100"/>
-                    <DataGridTextColumn Header="pH" Binding="{Binding pH}" Width="60"/>
-                    <DataGridTextColumn Header="Humedad" Binding="{Binding Humedad}" Width="80"/>
-                    <DataGridTextColumn Header="Kg Elaborados" Binding="{Binding CantidadElaboradaKg, StringFormat='N0'}" Width="110"/>
-                    <DataGridTextColumn Header="Lote Final" Binding="{Binding LoteProductoFinal}" Width="*"/>
+                    <DataGridTextColumn Header="Fecha" Binding="{Binding FechaProduccion, StringFormat=dd/MM/yyyy}" Width="110"/>
+                    <DataGridTextColumn Header="Turno" Binding="{Binding Turno}" Width="70"/>
+                    <DataGridTextColumn Header="Nº Lote" Binding="{Binding NumeroLote}" Width="140"/>
+                    <DataGridTextColumn Header="Bolsas" Binding="{Binding CantidadBolsas}" Width="90"/>
+                    <DataGridTextColumn Header="Kg" Binding="{Binding CantidadKg, StringFormat=N0}" Width="90"/>
+                    <DataGridTextColumn Header="Expresión" Binding="{Binding ExpresionCantidad}" Width="*"/>
+                    <DataGridTextColumn Header="Usuario" Binding="{Binding UsuarioRegistro}" Width="120"/>
+                    <DataGridTextColumn Header="Registrado" Binding="{Binding FechaRegistro, StringFormat=dd/MM/yyyy HH:mm}" Width="140"/>
+                    <DataGridTemplateColumn Header="Acciones" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Eliminar" Padding="10,4" Cursor="Hand"
+                                        Background="#FEE2E2" Foreground="#B91C1C" BorderThickness="0"
+                                        FontSize="12" FontWeight="SemiBold"
+                                        Command="{Binding DataContext.EliminarCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
-
-    </DockPanel>
+    </Grid>
 </UserControl>
