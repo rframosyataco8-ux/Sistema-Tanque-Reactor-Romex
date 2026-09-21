@@ -66,7 +66,6 @@ public class ProduccionService
     {
         await AsegurarLoteAsync(registro.NumeroLote);
 
-        // Normalizar turno: solo "I" o "II"
         var turno = (registro.Turno ?? "I").Trim().ToUpperInvariant();
         if (turno != "I" && turno != "II")
             turno = "I";
@@ -85,14 +84,13 @@ public class ProduccionService
 
             cmd.Parameters.AddWithValue("@lote", registro.NumeroLote.Trim());
             cmd.Parameters.AddWithValue("@fecha", registro.FechaProduccion.Date);
-            cmd.Parameters.AddWithValue("@turno", turno); // NVARCHAR-safe, sin padding raro
+            cmd.Parameters.AddWithValue("@turno", turno);
             cmd.Parameters.AddWithValue("@cantidad", registro.CantidadBolsas);
             cmd.Parameters.AddWithValue("@expresion", (object?)registro.ExpresionCantidad ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@usuario", (object?)registro.UsuarioRegistro ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@obs", (object?)registro.Observaciones ?? DBNull.Value);
             await cmd.ExecuteNonQueryAsync();
 
-            // Producción: resta disponible + suma produccion (NO despacho)
             try
             {
                 using var upd = new SqlCommand(
@@ -143,21 +141,104 @@ public class ProduccionService
         using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
-            lista.Add(new RegistroProduccion
-            {
-                IdRegistro = reader.GetInt32(0),
-                NumeroLote = reader.GetString(1).Trim(),
-                FechaProduccion = reader.GetDateTime(2),
-                // CRÍTICO: CHAR(2) rellena con espacios → "I " debe ser "I"
-                Turno = reader.GetString(3).Trim(),
-                CantidadBolsas = reader.GetInt32(4),
-                ExpresionCantidad = reader.IsDBNull(5) ? null : reader.GetString(5),
-                FechaRegistro = reader.GetDateTime(6),
-                UsuarioRegistro = reader.IsDBNull(7) ? null : reader.GetString(7),
-                Observaciones = reader.IsDBNull(8) ? null : reader.GetString(8)
-            });
+            lista.Add(LeerRegistro(reader));
         }
         return lista;
+    }
+
+    public async Task<List<RegistroProduccion>> ObtenerTodosRegistrosAsync(
+        DateTime? desde, DateTime? hasta, string? lote, string? turno)
+    {
+        var lista = new List<RegistroProduccion>();
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        var sql = @"SELECT IdRegistro, NumeroLote, FechaProduccion, Turno, CantidadBolsas,
+                           ExpresionCantidad, FechaRegistro, UsuarioRegistro, Observaciones
+                    FROM RegistrosProduccion WHERE 1=1";
+
+        if (desde.HasValue) sql += " AND FechaProduccion >= @desde";
+        if (hasta.HasValue) sql += " AND FechaProduccion <= @hasta";
+        if (!string.IsNullOrWhiteSpace(lote)) sql += " AND NumeroLote LIKE @lote";
+        if (!string.IsNullOrWhiteSpace(turno)) sql += " AND LTRIM(RTRIM(Turno)) = @turno";
+        sql += " ORDER BY FechaProduccion DESC, NumeroLote, Turno";
+
+        using var cmd = new SqlCommand(sql, conn);
+        if (desde.HasValue) cmd.Parameters.AddWithValue("@desde", desde.Value.Date);
+        if (hasta.HasValue) cmd.Parameters.AddWithValue("@hasta", hasta.Value.Date);
+        if (!string.IsNullOrWhiteSpace(lote)) cmd.Parameters.AddWithValue("@lote", "%" + lote.Trim() + "%");
+        if (!string.IsNullOrWhiteSpace(turno)) cmd.Parameters.AddWithValue("@turno", turno.Trim());
+
+        using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+            lista.Add(LeerRegistro(reader));
+
+        return lista;
+    }
+
+    public async Task EliminarRegistroAsync(int idRegistro)
+    {
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+        using var tran = conn.BeginTransaction();
+        try
+        {
+            // Leer el registro para restaurar stock
+            string? numeroLote = null;
+            int cantidad = 0;
+            using (var sel = new SqlCommand(
+                "SELECT NumeroLote, CantidadBolsas FROM RegistrosProduccion WHERE IdRegistro = @id", conn, tran))
+            {
+                sel.Parameters.AddWithValue("@id", idRegistro);
+                using var r = await sel.ExecuteReaderAsync();
+                if (await r.ReadAsync())
+                {
+                    numeroLote = r.GetString(0).Trim();
+                    cantidad = r.GetInt32(1);
+                }
+            }
+
+            if (numeroLote == null)
+                throw new InvalidOperationException("Registro no encontrado.");
+
+            using (var del = new SqlCommand(
+                "DELETE FROM RegistrosProduccion WHERE IdRegistro = @id", conn, tran))
+            {
+                del.Parameters.AddWithValue("@id", idRegistro);
+                await del.ExecuteNonQueryAsync();
+            }
+
+            // Devolver stock al lote
+            try
+            {
+                using var upd = new SqlCommand(
+                    @"UPDATE LotesTorta
+                      SET CantidadBolsasDisponible = CantidadBolsasDisponible + @c,
+                          ProduccionBolsas = CASE WHEN ProduccionBolsas >= @c THEN ProduccionBolsas - @c ELSE 0 END
+                      WHERE NumeroLote = @l", conn, tran);
+                upd.Parameters.AddWithValue("@c", cantidad);
+                upd.Parameters.AddWithValue("@l", numeroLote);
+                await upd.ExecuteNonQueryAsync();
+            }
+            catch
+            {
+                using var upd = new SqlCommand(
+                    @"UPDATE LotesTorta
+                      SET CantidadBolsasDisponible = CantidadBolsasDisponible + @c,
+                          DespachoBolsas = CASE WHEN DespachoBolsas >= @c THEN DespachoBolsas - @c ELSE 0 END
+                      WHERE NumeroLote = @l", conn, tran);
+                upd.Parameters.AddWithValue("@c", cantidad);
+                upd.Parameters.AddWithValue("@l", numeroLote);
+                await upd.ExecuteNonQueryAsync();
+            }
+
+            tran.Commit();
+        }
+        catch
+        {
+            tran.Rollback();
+            throw;
+        }
     }
 
     public async Task<List<LoteTorta>> ObtenerLotesConStockAsync()
@@ -249,21 +330,25 @@ public class ProduccionService
 
         using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
-        {
-            lista.Add(new RegistroProduccion
-            {
-                IdRegistro = reader.GetInt32(0),
-                NumeroLote = reader.GetString(1).Trim(),
-                FechaProduccion = reader.GetDateTime(2),
-                Turno = reader.GetString(3).Trim(),
-                CantidadBolsas = reader.GetInt32(4),
-                ExpresionCantidad = reader.IsDBNull(5) ? null : reader.GetString(5),
-                FechaRegistro = reader.GetDateTime(6),
-                UsuarioRegistro = reader.IsDBNull(7) ? null : reader.GetString(7),
-                Observaciones = reader.IsDBNull(8) ? null : reader.GetString(8)
-            });
-        }
+            lista.Add(LeerRegistro(reader));
+
         return lista;
+    }
+
+    private static RegistroProduccion LeerRegistro(SqlDataReader reader)
+    {
+        return new RegistroProduccion
+        {
+            IdRegistro = reader.GetInt32(0),
+            NumeroLote = reader.GetString(1).Trim(),
+            FechaProduccion = reader.GetDateTime(2),
+            Turno = reader.GetString(3).Trim(),
+            CantidadBolsas = reader.GetInt32(4),
+            ExpresionCantidad = reader.IsDBNull(5) ? null : reader.GetString(5),
+            FechaRegistro = reader.GetDateTime(6),
+            UsuarioRegistro = reader.IsDBNull(7) ? null : reader.GetString(7),
+            Observaciones = reader.IsDBNull(8) ? null : reader.GetString(8)
+        };
     }
 
     public static int EvaluarExpresion(string expresion)
