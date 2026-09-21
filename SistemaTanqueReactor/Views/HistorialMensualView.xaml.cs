@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,14 +11,15 @@ namespace SistemaTanqueReactor.Views;
 
 public partial class HistorialMensualView : UserControl
 {
-    private static readonly SolidColorBrush HeaderFijoBg = BrushFrom("#E2E8F0");
-    private static readonly SolidColorBrush HeaderDiaBg = BrushFrom("#F1F5F9");
-    private static readonly SolidColorBrush HeaderIBg = BrushFrom("#CCFBF1");   // teal claro
-    private static readonly SolidColorBrush HeaderIIBg = BrushFrom("#E0E7FF");  // índigo claro
-    private static readonly SolidColorBrush BorderBrushColor = BrushFrom("#CBD5E1");
-    private static readonly SolidColorBrush TextDark = BrushFrom("#1E293B");
-    private static readonly SolidColorBrush TextTeal = BrushFrom("#0F766E");
-    private static readonly SolidColorBrush TextIndigo = BrushFrom("#4338CA");
+    private static readonly SolidColorBrush BorderBlack = BrushFrom("#1E293B");
+    private static readonly SolidColorBrush HeaderBg = BrushFrom("#FFFFFF");
+    private static readonly SolidColorBrush TextDark = BrushFrom("#0F172A");
+
+    private const double AnchoFijoTotal = 300; // LOTE + BOLSAS + STOOCK
+    private const double AnchoLote = 120;
+    private const double AnchoBolsas = 110;
+    private const double AnchoStok = 70;
+    private const double AnchoTurno = 52;     // I o II
 
     public HistorialMensualView()
     {
@@ -48,137 +50,106 @@ public partial class HistorialMensualView : UserControl
         }
     }
 
-    /// <summary>
-    /// Construye columnas con encabezado de 2 líneas: fecha arriba, I/II abajo.
-    /// Igual espíritu que la planilla Excel.
-    /// </summary>
     private void ReconstruirColumnas(HistorialMensualViewModel vm)
     {
         DgHistorial.Columns.Clear();
 
-        // —— Columnas fijas ——
-        DgHistorial.Columns.Add(CrearColumnaFija(HistorialMensualViewModel.ColLote, "Nº de lote", 118));
-        DgHistorial.Columns.Add(CrearColumnaFija(HistorialMensualViewModel.ColBolsas, "cantidad_bolsas", 108));
-        DgHistorial.Columns.Add(CrearColumnaFija(HistorialMensualViewModel.ColStok, "stok", 64));
+        // Columnas fijas
+        DgHistorial.Columns.Add(CrearColFija(HistorialMensualViewModel.ColLote, "Nº DE LOTE", AnchoLote));
+        DgHistorial.Columns.Add(CrearColFija(HistorialMensualViewModel.ColBolsas, "CANTIDAD_BOLSAS", AnchoBolsas));
+        DgHistorial.Columns.Add(CrearColFija(HistorialMensualViewModel.ColStok, "STOOCK", AnchoStok));
 
-        // —— Un par I / II por cada día del mes ——
+        // Solo I e II debajo de cada fecha (la fecha está en la fila de arriba)
         int dias = vm.DiasEnMes > 0 ? vm.DiasEnMes : DateTime.DaysInMonth(vm.Anio, vm.Mes);
         for (int d = 1; d <= dias; d++)
         {
-            string etiquetaFecha = $"{d:D2}/{vm.Mes:D2}";
-
-            DgHistorial.Columns.Add(CrearColumnaDia(
-                HistorialMensualViewModel.ColDia(d, "I"),
-                etiquetaFecha, "I", esTurnoI: true, dia: d));
-
-            DgHistorial.Columns.Add(CrearColumnaDia(
-                HistorialMensualViewModel.ColDia(d, "II"),
-                etiquetaFecha, "II", esTurnoI: false, dia: d));
+            DgHistorial.Columns.Add(CrearColTurno(HistorialMensualViewModel.ColDia(d, "I"), "I"));
+            DgHistorial.Columns.Add(CrearColTurno(HistorialMensualViewModel.ColDia(d, "II"), "II"));
         }
     }
 
-    private DataGridTextColumn CrearColumnaFija(string bindingPath, string titulo, double width)
+    private DataGridTextColumn CrearColFija(string path, string titulo, double width)
     {
-        var col = new DataGridTextColumn
+        return new DataGridTextColumn
         {
-            Header = CrearHeaderFijo(titulo),
-            Binding = new Binding(bindingPath),
+            Header = titulo,
+            Binding = new Binding(path),
             Width = new DataGridLength(width),
-            MinWidth = width - 10,
+            MinWidth = width,
             CanUserSort = false,
-            ElementStyle = EstiloCeldaCentrada()
+            ElementStyle = CeldaCentrada(),
+            HeaderStyle = HeaderStyle()
         };
-        return col;
     }
 
-    private DataGridTextColumn CrearColumnaDia(string bindingPath, string fecha, string turno, bool esTurnoI, int dia)
+    private DataGridTextColumn CrearColTurno(string path, string turno)
     {
-        var col = new DataGridTextColumn
+        return new DataGridTextColumn
         {
-            Header = CrearHeaderDia(fecha, turno, esTurnoI),
-            Binding = new Binding(bindingPath),
-            Width = new DataGridLength(52),
-            MinWidth = 46,
+            Header = turno,
+            Binding = new Binding(path),
+            Width = new DataGridLength(AnchoTurno),
+            MinWidth = AnchoTurno,
             CanUserSort = false,
-            ElementStyle = EstiloCeldaCentrada()
-        };
-        // Guardamos día y turno en Tag para el doble clic
-        col.HeaderStyle = CrearHeaderStyle(esTurnoI);
-        return col;
-    }
-
-    private static FrameworkElement CrearHeaderFijo(string titulo)
-    {
-        return new TextBlock
-        {
-            Text = titulo,
-            FontWeight = FontWeights.SemiBold,
-            FontSize = 11,
-            Foreground = TextDark,
-            TextAlignment = TextAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(4, 2, 4, 2)
+            ElementStyle = CeldaCentrada(),
+            HeaderStyle = HeaderStyle()
         };
     }
 
-    /// <summary>Encabezado de 2 líneas: fecha + turno (como planilla Excel).</summary>
-    private static FrameworkElement CrearHeaderDia(string fecha, string turno, bool esTurnoI)
+    private static Style HeaderStyle()
     {
-        var stack = new StackPanel
-        {
-            Orientation = Orientation.Vertical,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        stack.Children.Add(new TextBlock
-        {
-            Text = fecha,
-            FontSize = 10,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = TextDark,
-            TextAlignment = TextAlignment.Center,
-            Margin = new Thickness(0, 0, 0, 1)
-        });
-
-        stack.Children.Add(new TextBlock
-        {
-            Text = turno,
-            FontSize = 11,
-            FontWeight = FontWeights.Bold,
-            Foreground = esTurnoI ? TextTeal : TextIndigo,
-            TextAlignment = TextAlignment.Center
-        });
-
-        return stack;
+        var s = new Style(typeof(DataGridColumnHeader));
+        s.Setters.Add(new Setter(Control.BackgroundProperty, HeaderBg));
+        s.Setters.Add(new Setter(Control.ForegroundProperty, TextDark));
+        s.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.SemiBold));
+        s.Setters.Add(new Setter(Control.FontSizeProperty, 11.0));
+        s.Setters.Add(new Setter(Control.BorderBrushProperty, BorderBlack));
+        s.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(0, 0, 1, 1)));
+        s.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Center));
+        s.Setters.Add(new Setter(Control.VerticalContentAlignmentProperty, VerticalAlignment.Center));
+        s.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(2, 2, 2, 2)));
+        s.Setters.Add(new Setter(Control.HeightProperty, 28.0));
+        return s;
     }
 
-    private static Style CrearHeaderStyle(bool esTurnoI)
+    private static Style CeldaCentrada()
     {
-        var style = new Style(typeof(DataGridColumnHeader));
-        style.Setters.Add(new Setter(Control.BackgroundProperty, esTurnoI ? HeaderIBg : HeaderIIBg));
-        style.Setters.Add(new Setter(Control.BorderBrushProperty, BorderBrushColor));
-        style.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(0, 0, 1, 1)));
-        style.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(2, 4, 2, 4)));
-        style.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Center));
-        style.Setters.Add(new Setter(Control.VerticalContentAlignmentProperty, VerticalAlignment.Center));
-        return style;
-    }
-
-    private static Style EstiloCeldaCentrada()
-    {
-        var style = new Style(typeof(TextBlock));
-        style.Setters.Add(new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center));
-        style.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center));
-        style.Setters.Add(new Setter(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center));
-        return style;
+        var s = new Style(typeof(TextBlock));
+        s.Setters.Add(new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center));
+        s.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center));
+        s.Setters.Add(new Setter(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center));
+        return s;
     }
 
     private static SolidColorBrush BrushFrom(string hex)
     {
-        var brush = (SolidColorBrush)new BrushConverter().ConvertFrom(hex)!;
-        brush.Freeze();
-        return brush;
+        var b = (SolidColorBrush)new BrushConverter().ConvertFrom(hex)!;
+        b.Freeze();
+        return b;
+    }
+
+    /// <summary>Sincroniza el scroll horizontal del encabezado de fechas con el DataGrid.</summary>
+    private void DgHistorial_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (e.HorizontalChange == 0) return;
+
+        // El DataGrid congela 3 columnas (300px). El scroll de fechas solo mueve la parte de días.
+        var sv = GetScrollViewer(DgHistorial);
+        if (sv == null) return;
+
+        ScrollFechas.ScrollToHorizontalOffset(sv.HorizontalOffset);
+    }
+
+    private static ScrollViewer? GetScrollViewer(DependencyObject root)
+    {
+        if (root is ScrollViewer sv) return sv;
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            var result = GetScrollViewer(child);
+            if (result != null) return result;
+        }
+        return null;
     }
 
     private async void DgHistorial_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -190,15 +161,14 @@ public partial class HistorialMensualView : UserControl
         if (col?.Binding is not Binding binding) return;
 
         string path = binding.Path?.Path ?? "";
-        // Formato interno: D20_I  /  D20_II
         if (!path.StartsWith("D") || !path.Contains('_')) return;
 
         var parts = path.Split('_');
         if (parts.Length != 2) return;
-
         if (!int.TryParse(parts[0].TrimStart('D'), out int dia)) return;
+
         string turno = parts[1];
-        if (turno != "I" && turno != "II") return;
+        if (turno is not ("I" or "II")) return;
 
         string numeroLote = row[HistorialMensualViewModel.ColLote]?.ToString() ?? "";
         if (string.IsNullOrEmpty(numeroLote)) return;

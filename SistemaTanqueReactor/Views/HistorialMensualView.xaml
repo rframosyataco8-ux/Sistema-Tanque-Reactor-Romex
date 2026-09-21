@@ -3,86 +3,127 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
-    <Grid>
+    <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Barra superior: mes + filtros -->
-        <Border Grid.Row="0" Background="#0F766E" CornerRadius="12,12,0,0" Padding="0,14">
+        <!-- Filtros: Año | Mes | MOSTRAR -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,12">
+            <ComboBox ItemsSource="{Binding Anios}" SelectedItem="{Binding Anio}"
+                      Width="100" Height="36" Margin="0,0,16,0"
+                      FontSize="14" VerticalContentAlignment="Center"/>
+            <ComboBox ItemsSource="{Binding Meses}"
+                      SelectedValue="{Binding Mes}" SelectedValuePath="Numero"
+                      DisplayMemberPath="Nombre"
+                      Width="140" Height="36" Margin="0,0,16,0"
+                      FontSize="14" VerticalContentAlignment="Center"/>
+            <Button Command="{Binding BuscarCommand}"
+                    Content="MOSTRAR"
+                    Width="110" Height="36"
+                    FontSize="13" FontWeight="SemiBold"
+                    Background="White" BorderBrush="#1E293B" BorderThickness="1.5"
+                    Cursor="Hand"/>
+        </StackPanel>
+
+        <!-- Mensaje / leyenda -->
+        <TextBlock Grid.Row="1" Text="{Binding Mensaje}"
+                   FontSize="12" Foreground="#64748B"
+                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+
+        <!-- PLANILLA: encabezado mes + fechas + grilla -->
+        <Border Grid.Row="2" BorderBrush="#1E293B" BorderThickness="1" Margin="12,0,12,12"
+                Background="White" ClipToBounds="True">
             <Grid>
-                <TextBlock Text="{Binding TituloMes}"
-                           FontSize="20" FontWeight="Bold" Foreground="White"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center">
-                    <ComboBox ItemsSource="{Binding Anios}" SelectedItem="{Binding Anio}"
-                              Width="80" Height="34" Margin="0,0,8,0"
-                              Background="White" FontSize="13"/>
-                    <ComboBox ItemsSource="{Binding Meses}"
-                              SelectedValue="{Binding Mes}" SelectedValuePath="Numero"
-                              DisplayMemberPath="Nombre"
-                              Width="130" Height="34" Margin="0,0,8,0"
-                              Background="White" FontSize="13"/>
-                    <Button Command="{Binding BuscarCommand}"
-                            Background="#14B8A6" Foreground="White" BorderThickness="0"
-                            Padding="14,6" Cursor="Hand" FontWeight="SemiBold">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" VerticalAlignment="Center"/>
-                            <TextBlock Text="Cargar" Margin="6,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- Leyenda -->
-        <Border Grid.Row="1" Background="#F0FDFA" BorderBrush="#99F6E4" BorderThickness="1,0,1,1" Padding="16,10">
-            <Grid>
-                <TextBlock Text="{Binding Mensaje}" FontSize="12" Foreground="#0F766E" VerticalAlignment="Center"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Border Background="#CCFBF1" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
-                        <TextBlock Text="I = Turno Día" FontSize="11" FontWeight="SemiBold" Foreground="#0D9488"/>
+                <!-- Fila 1: espacio fijo + mes fusionado -->
+                <Grid Grid.Row="0" x:Name="FilaMes">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Celda vacía sobre columnas fijas -->
+                    <Border Grid.Column="0" BorderBrush="#1E293B" BorderThickness="0,0,1,1" Background="White"/>
+                    <!-- SEPTIEMBRE centrado sobre todas las fechas -->
+                    <Border Grid.Column="1" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Background="White">
+                        <TextBlock Text="{Binding TituloMes}"
+                                   FontSize="14" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Margin="0,6"/>
                     </Border>
-                    <Border Background="#E0E7FF" CornerRadius="4" Padding="8,3">
-                        <TextBlock Text="II = Turno Noche" FontSize="11" FontWeight="SemiBold" Foreground="#4338CA"/>
-                    </Border>
-                    <TextBlock Text="  ·  Doble clic = detalle" FontSize="11" Foreground="#64748B"
-                               VerticalAlignment="Center" Margin="8,0,0,0"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+                </Grid>
 
-        <!-- Planilla -->
-        <Border Grid.Row="2" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
-                CornerRadius="0,0,12,12" ClipToBounds="True">
-            <DataGrid x:Name="DgHistorial"
-                      ItemsSource="{Binding TablaHistorial}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="False"
-                      CanUserReorderColumns="False"
-                      CanUserResizeRows="False"
-                      CanUserSortColumns="False"
-                      HeadersVisibility="Column"
-                      GridLinesVisibility="All"
-                      HorizontalGridLinesBrush="#E2E8F0"
-                      VerticalGridLinesBrush="#E2E8F0"
-                      AlternatingRowBackground="#F8FAFC"
-                      RowBackground="White"
-                      BorderThickness="0"
-                      FontSize="12"
-                      FontFamily="Segoe UI"
-                      RowHeight="34"
-                      ColumnHeaderHeight="48"
-                      FrozenColumnCount="3"
-                      EnableRowVirtualization="True"
-                      SelectionUnit="Cell"
-                      SelectionMode="Single"
-                      MouseDoubleClick="DgHistorial_MouseDoubleClick"/>
+                <!-- Fila 2: espacio fijo + fechas (cada una ocupa 2 columnas visuales) -->
+                <Grid Grid.Row="1" x:Name="FilaFechas">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Espacio sobre Nº LOTE | CANTIDAD | STOOCK -->
+                    <Border Grid.Column="0" BorderBrush="#1E293B" BorderThickness="0,0,1,1" Background="White" Height="28"/>
+
+                    <!-- Fechas: ItemsControl horizontal -->
+                    <ScrollViewer x:Name="ScrollFechas" Grid.Column="1"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="ItemsFechas" ItemsSource="{Binding FechasEncabezado}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Cada fecha = ancho de I + II (52+52=104) -->
+                                    <Border Width="104" BorderBrush="#1E293B" BorderThickness="0,0,1,1"
+                                            Background="White">
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="11" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Margin="2,4"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- Fila 3: DataGrid (headers = I / II solo) -->
+                <DataGrid Grid.Row="2" x:Name="DgHistorial"
+                          ItemsSource="{Binding TablaHistorial}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserReorderColumns="False"
+                          CanUserResizeRows="False"
+                          CanUserSortColumns="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="All"
+                          HorizontalGridLinesBrush="#94A3B8"
+                          VerticalGridLinesBrush="#94A3B8"
+                          AlternatingRowBackground="#F8FAFC"
+                          RowBackground="White"
+                          BorderThickness="0"
+                          FontSize="12"
+                          FontFamily="Segoe UI"
+                          RowHeight="32"
+                          ColumnHeaderHeight="28"
+                          FrozenColumnCount="3"
+                          EnableRowVirtualization="True"
+                          SelectionUnit="Cell"
+                          SelectionMode="Single"
+                          MouseDoubleClick="DgHistorial_MouseDoubleClick"
+                          ScrollViewer.ScrollChanged="DgHistorial_ScrollChanged"/>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

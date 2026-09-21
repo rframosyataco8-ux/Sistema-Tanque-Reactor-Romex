@@ -23,10 +23,12 @@ public partial class HistorialMensualViewModel : ObservableObject
     public ObservableCollection<int> Anios { get; } = new();
     public ObservableCollection<MesItem> Meses { get; } = new();
 
-    // Nombres internos de columnas fijas
-    public const string ColLote = "Nº de lote";
-    public const string ColBolsas = "cantidad_bolsas";
-    public const string ColStok = "stok";
+    /// <summary>Lista de fechas del mes para el encabezado (una por día).</summary>
+    public ObservableCollection<string> FechasEncabezado { get; } = new();
+
+    public const string ColLote = "Nº DE LOTE";
+    public const string ColBolsas = "CANTIDAD_BOLSAS";
+    public const string ColStok = "STOOCK";
 
     public HistorialMensualViewModel(ProduccionService service)
     {
@@ -44,7 +46,6 @@ public partial class HistorialMensualViewModel : ObservableObject
             Meses.Add(new MesItem { Numero = i, Nombre = nombres[i - 1] });
     }
 
-    /// <summary>Nombre interno de columna de un día/turno (ej: D20_I).</summary>
     public static string ColDia(int dia, string turno) => $"D{dia:D2}_{turno}";
 
     public async Task CargarAsync()
@@ -53,21 +54,24 @@ public partial class HistorialMensualViewModel : ObservableObject
         {
             IsLoading = true;
             var nombreMes = Meses.First(m => m.Numero == Mes).Nombre.ToUpper();
-            TituloMes = $"{nombreMes} {Anio}";
+            TituloMes = nombreMes;
             Mensaje = "Cargando...";
 
             var registros = await _service.ObtenerRegistrosDelMesAsync(Anio, Mes);
             var lotes = await _service.ObtenerLotesConStockAsync();
             DiasEnMes = DateTime.DaysInMonth(Anio, Mes);
 
+            // Encabezados de fecha: 20/09/2026, 21/09/2026, ...
+            FechasEncabezado.Clear();
+            for (int d = 1; d <= DiasEnMes; d++)
+                FechasEncabezado.Add($"{d:D2}/{Mes:D2}/{Anio}");
+
             var dt = new DataTable();
 
-            // Columnas fijas (planilla)
             dt.Columns.Add(ColLote, typeof(string));
             dt.Columns.Add(ColBolsas, typeof(int));
             dt.Columns.Add(ColStok, typeof(int));
 
-            // Una columna por día y turno (nombres internos estables)
             for (int d = 1; d <= DiasEnMes; d++)
             {
                 dt.Columns.Add(ColDia(d, "I"), typeof(string));
