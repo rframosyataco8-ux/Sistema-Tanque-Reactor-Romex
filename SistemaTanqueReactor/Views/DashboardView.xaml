@@ -3,108 +3,113 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
         <StackPanel>
 
-            <!-- Título de sección -->
-            <Grid Margin="0,0,0,24">
-                <TextBlock Text="Resumen del día" FontSize="18" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}"/>
+            <!-- Header -->
+            <Grid Margin="0,0,0,28">
+                <StackPanel>
+                    <TextBlock Text="Resumen del día" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Indicadores de producción del tanque reactor"
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
                 <Button Style="{StaticResource OutlineButton}"
-                        HorizontalAlignment="Right"
-                        Command="{Binding RefrescarCommand}"
-                        Content="Actualizar"/>
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Command="{Binding RefrescarCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="Actualizar" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </Grid>
 
-            <!-- Cards de resumen -->
-            <UniformGrid Columns="3" Margin="0,0,0,32">
+            <!-- Cards de KPIs -->
+            <UniformGrid Columns="3" Margin="0,0,0,28">
 
-                <!-- Card 1: Total Cargas -->
-                <Border Style="{StaticResource ModernCard}" Margin="0,0,16,0">
+                <!-- Cargas -->
+                <Border Style="{StaticResource ModernCard}" Margin="0,0,14,0">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Background="#E0F2F1" CornerRadius="10" Width="48" Height="48">
-                                <materialDesign:PackIcon Kind="Factory" Width="26" Height="26" 
+                        <Grid>
+                            <Border Background="#CCFBF1" CornerRadius="12" Width="48" Height="48"
+                                    HorizontalAlignment="Left">
+                                <materialDesign:PackIcon Kind="Factory" Width="24" Height="24"
                                                          HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                         Foreground="{StaticResource PrimaryBrush}"/>
+                                                         Foreground="#0D9488"/>
                             </Border>
-                            <TextBlock Text="Cargas Hoy" VerticalAlignment="Center" Margin="14,0,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TotalCargasHoy}" 
-                                   FontSize="36" FontWeight="Bold" Margin="0,16,0,0"
+                        </Grid>
+                        <TextBlock Text="{Binding TotalCargasHoy}"
+                                   FontSize="40" FontWeight="Bold" Margin="0,18,0,0"
                                    Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock Text="registradas" FontSize="13" 
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Cargas registradas hoy" FontSize="13"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Card 2: Kg Torta -->
-                <Border Style="{StaticResource ModernCard}" Margin="0,0,16,0">
+                <!-- Torta -->
+                <Border Style="{StaticResource ModernCard}" Margin="0,0,14,0">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Background="#FEF3C7" CornerRadius="10" Width="48" Height="48">
-                                <materialDesign:PackIcon Kind="PackageVariant" Width="26" Height="26" 
+                        <Grid>
+                            <Border Background="#FEF3C7" CornerRadius="12" Width="48" Height="48"
+                                    HorizontalAlignment="Left">
+                                <materialDesign:PackIcon Kind="PackageVariantClosed" Width="24" Height="24"
                                                          HorizontalAlignment="Center" VerticalAlignment="Center"
                                                          Foreground="#D97706"/>
                             </Border>
-                            <TextBlock Text="Torta Trozada" VerticalAlignment="Center" Margin="14,0,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TotalKgTortaHoy, StringFormat='{}{0:N0} kg'}" 
-                                   FontSize="36" FontWeight="Bold" Margin="0,16,0,0"
+                        </Grid>
+                        <TextBlock Text="{Binding TotalKgTortaHoy, StringFormat='{}{0:N0}'}"
+                                   FontSize="40" FontWeight="Bold" Margin="0,18,0,0"
                                    Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock Text="consumidos hoy" FontSize="13" 
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Kg de Torta Trozada" FontSize="13"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Card 3: Kg Merma -->
+                <!-- Merma -->
                 <Border Style="{StaticResource ModernCard}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Background="#FEE2E2" CornerRadius="10" Width="48" Height="48">
-                                <materialDesign:PackIcon Kind="Recycle" Width="26" Height="26" 
+                        <Grid>
+                            <Border Background="#FEE2E2" CornerRadius="12" Width="48" Height="48"
+                                    HorizontalAlignment="Left">
+                                <materialDesign:PackIcon Kind="Recycle" Width="24" Height="24"
                                                          HorizontalAlignment="Center" VerticalAlignment="Center"
                                                          Foreground="#DC2626"/>
                             </Border>
-                            <TextBlock Text="Merma / Reproceso" VerticalAlignment="Center" Margin="14,0,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TotalKgMermaHoy, StringFormat='{}{0:N0} kg'}" 
-                                   FontSize="36" FontWeight="Bold" Margin="0,16,0,0"
+                        </Grid>
+                        <TextBlock Text="{Binding TotalKgMermaHoy, StringFormat='{}{0:N0}'}"
+                                   FontSize="40" FontWeight="Bold" Margin="0,18,0,0"
                                    Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock Text="utilizados hoy" FontSize="13" 
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Kg de Merma / Reproceso" FontSize="13"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
             </UniformGrid>
 
-            <!-- Mensaje de estado -->
-            <Border Style="{StaticResource ModernCard}" Padding="20">
+            <!-- Estado -->
+            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,20">
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="InformationOutline" Width="22" Height="22"
-                                             Foreground="{StaticResource PrimaryBrush}"
-                                             VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding MensajeEstado}" Margin="12,0,0,0"
-                               VerticalAlignment="Center"
+                    <Border Background="#CCFBF1" CornerRadius="8" Width="36" Height="36">
+                        <materialDesign:PackIcon Kind="InformationOutline" Width="18" Height="18"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                 Foreground="#0D9488"/>
+                    </Border>
+                    <TextBlock Text="{Binding MensajeEstado}" Margin="14,0,0,0"
+                               VerticalAlignment="Center" FontSize="14"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                 </StackPanel>
             </Border>
 
-            <!-- Acceso rápido -->
-            <TextBlock Text="Acceso rápido" FontSize="16" FontWeight="SemiBold" 
-                       Margin="0,32,0,16" Foreground="{StaticResource TextPrimaryBrush}"/>
-
-            <Border Style="{StaticResource ModernCard}">
+            <!-- Tip -->
+            <Border Style="{StaticResource ModernCard}" Background="#FFFBEB"
+                    BorderBrush="#FDE68A" BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="LightbulbOnOutline" Width="24" Height="24"
-                                             Foreground="{StaticResource AccentBrush}"
-                                             VerticalAlignment="Center"/>
-                    <TextBlock Text="Usa el menú de la izquierda para registrar una nueva carga o consultar el historial completo."
-                               Margin="14,0,0,0" VerticalAlignment="Center"
-                               TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <materialDesign:PackIcon Kind="LightbulbOnOutline" Width="22" Height="22"
+                                             Foreground="#D97706" VerticalAlignment="Center"/>
+                    <TextBlock Text="Tip: Usa el botón «Nueva Carga» del menú para registrar una carga. El sistema agrega automáticamente 28 bolsas de torta + 2 de merma."
+                               Margin="14,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"
+                               FontSize="13" Foreground="#92400E"/>
                 </StackPanel>
             </Border>
 
