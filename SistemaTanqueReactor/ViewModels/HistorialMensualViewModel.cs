@@ -50,17 +50,18 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             var dt = new DataTable();
 
-            // Columnas fijas (izquierda de la planilla)
-            dt.Columns.Add("Nº DE LOTE", typeof(string));
-            dt.Columns.Add("CANTIDAD_BOLSAS", typeof(int));
-            dt.Columns.Add("DESPACHO", typeof(int));
-            dt.Columns.Add("STOCK kg", typeof(int));
+            // Columnas fijas — exactamente como la planilla de la imagen
+            dt.Columns.Add("Nº de lote", typeof(string));
+            dt.Columns.Add("cantidad_bolsas", typeof(int));
+            dt.Columns.Add("stok", typeof(int));
 
-            // Por cada día: Turno I y Turno II
+            // Por cada día: Turno I y Turno II (formato fecha corto + turno)
             for (int d = 1; d <= diasEnMes; d++)
             {
-                dt.Columns.Add($"{d:D2} I", typeof(string));
-                dt.Columns.Add($"{d:D2} II", typeof(string));
+                // Header visible: "20/09 I"  "20/09 II"
+                string etiqueta = $"{d:D2}/{Mes:D2}";
+                dt.Columns.Add($"{etiqueta} I", typeof(string));
+                dt.Columns.Add($"{etiqueta} II", typeof(string));
             }
 
             var agrupado = registros
@@ -76,20 +77,28 @@ public partial class HistorialMensualViewModel : ObservableObject
             {
                 var loteInfo = lotes.FirstOrDefault(l => l.NumeroLote == numeroLote);
                 var row = dt.NewRow();
-                row["Nº DE LOTE"] = numeroLote;
-                row["CANTIDAD_BOLSAS"] = loteInfo?.CantidadBolsasInicial ?? 400;
-                row["DESPACHO"] = loteInfo?.DespachoBolsas ?? 0;
-                row["STOCK kg"] = loteInfo?.StockKg ?? 10000;
+
+                row["Nº de lote"] = numeroLote;
+                row["cantidad_bolsas"] = loteInfo?.CantidadBolsasInicial ?? 400;
+                // stok = bolsas disponibles restantes (como en la planilla)
+                row["stok"] = loteInfo?.CantidadBolsasDisponible ?? 400;
 
                 if (agrupado.TryGetValue(numeroLote, out var regsLote))
                 {
                     for (int d = 1; d <= diasEnMes; d++)
                     {
                         var fecha = new DateTime(Anio, Mes, d);
-                        var turnoI = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I").Sum(r => r.CantidadBolsas);
-                        var turnoII = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II").Sum(r => r.CantidadBolsas);
-                        row[$"{d:D2} I"] = turnoI > 0 ? turnoI.ToString() : "";
-                        row[$"{d:D2} II"] = turnoII > 0 ? turnoII.ToString() : "";
+                        string etiqueta = $"{d:D2}/{Mes:D2}";
+
+                        var turnoI = regsLote
+                            .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I")
+                            .Sum(r => r.CantidadBolsas);
+                        var turnoII = regsLote
+                            .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II")
+                            .Sum(r => r.CantidadBolsas);
+
+                        row[$"{etiqueta} I"] = turnoI > 0 ? turnoI.ToString() : "";
+                        row[$"{etiqueta} II"] = turnoII > 0 ? turnoII.ToString() : "";
                     }
                 }
 
