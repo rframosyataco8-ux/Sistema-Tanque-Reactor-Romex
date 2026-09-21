@@ -1,4 +1,3 @@
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,14 +33,14 @@ public partial class MainViewModel : ObservableObject
                 NavigateToDashboard();
                 break;
             case "NuevaCarga":
-                NavigateToNuevaCarga();
+                NavigateToNuevoRegistro();
                 break;
             case "Historial":
-                NavigateToHistorial();
+                NavigateToHistorialMensual();
                 break;
             case "Maestros":
                 CurrentPageTitle = "Maestros";
-                CurrentView = new TextBlockPlaceholder("Módulo de Maestros (Lotes, Operarios, Insumos) - Próximamente");
+                CurrentView = new TextBlockPlaceholder("Módulo de Maestros - Próximamente");
                 break;
         }
     }
@@ -54,24 +53,23 @@ public partial class MainViewModel : ObservableObject
         _ = vm.CargarDatosAsync();
     }
 
-    private void NavigateToNuevaCarga()
+    private void NavigateToNuevoRegistro()
     {
-        CurrentPageTitle = "Nueva Carga";
-        var vm = _services.GetRequiredService<NuevaCargaViewModel>();
-        CurrentView = new NuevaCargaView { DataContext = vm };
+        CurrentPageTitle = "Nuevo Registro";
+        var vm = _services.GetRequiredService<NuevoRegistroViewModel>();
+        CurrentView = new NuevoRegistroView { DataContext = vm };
         _ = vm.InicializarAsync();
     }
 
-    private void NavigateToHistorial()
+    private void NavigateToHistorialMensual()
     {
-        CurrentPageTitle = "Historial de Cargas";
-        var vm = _services.GetRequiredService<HistorialViewModel>();
-        CurrentView = new HistorialView { DataContext = vm };
-        _ = vm.CargarDatosAsync();
+        CurrentPageTitle = "Historial Mensual";
+        var vm = _services.GetRequiredService<HistorialMensualViewModel>();
+        CurrentView = new HistorialMensualView { DataContext = vm };
+        _ = vm.CargarAsync();
     }
 }
 
-// Placeholder simple para módulos pendientes
 public class TextBlockPlaceholder : System.Windows.Controls.TextBlock
 {
     public TextBlockPlaceholder(string text)
