@@ -165,7 +165,7 @@
 
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="pH" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding pH}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                            <TextBox Text="{Binding Ph}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Humedad %" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
