@@ -12,23 +12,12 @@ public partial class HistorialMensualViewModel : ObservableObject
 {
     private readonly ProduccionService _service;
 
-    [ObservableProperty]
-    private int _anio = DateTime.Today.Year;
-
-    [ObservableProperty]
-    private int _mes = DateTime.Today.Month;
-
-    [ObservableProperty]
-    private DataTable? _tablaHistorial;
-
-    [ObservableProperty]
-    private bool _isLoading;
-
-    [ObservableProperty]
-    private string _mensaje = "";
-
-    [ObservableProperty]
-    private string _tituloMes = "";
+    [ObservableProperty] private int _anio = DateTime.Today.Year;
+    [ObservableProperty] private int _mes = DateTime.Today.Month;
+    [ObservableProperty] private DataTable? _tablaHistorial;
+    [ObservableProperty] private bool _isLoading;
+    [ObservableProperty] private string _mensaje = "";
+    [ObservableProperty] private string _tituloMes = "";
 
     public ObservableCollection<int> Anios { get; } = new();
     public ObservableCollection<MesItem> Meses { get; } = new();
@@ -51,33 +40,33 @@ public partial class HistorialMensualViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            TituloMes = $"{Meses.First(m => m.Numero == Mes).Nombre} {Anio}";
+            var nombreMes = Meses.First(m => m.Numero == Mes).Nombre.ToUpper();
+            TituloMes = $"{nombreMes} {Anio}";
             Mensaje = "Cargando...";
 
             var registros = await _service.ObtenerRegistrosDelMesAsync(Anio, Mes);
             var lotes = await _service.ObtenerLotesConStockAsync();
-
             int diasEnMes = DateTime.DaysInMonth(Anio, Mes);
 
             var dt = new DataTable();
-            dt.Columns.Add("Nº Lote", typeof(string));
-            dt.Columns.Add("Cant. Bolsas", typeof(int));
-            dt.Columns.Add("Despacho", typeof(int));
-            dt.Columns.Add("Stock (kg)", typeof(int));
 
-            // Columnas por día y turno
+            // Columnas fijas (izquierda de la planilla)
+            dt.Columns.Add("Nº DE LOTE", typeof(string));
+            dt.Columns.Add("CANTIDAD_BOLSAS", typeof(int));
+            dt.Columns.Add("DESPACHO", typeof(int));
+            dt.Columns.Add("STOCK kg", typeof(int));
+
+            // Por cada día: Turno I y Turno II
             for (int d = 1; d <= diasEnMes; d++)
             {
                 dt.Columns.Add($"{d:D2} I", typeof(string));
                 dt.Columns.Add($"{d:D2} II", typeof(string));
             }
 
-            // Agrupar registros
             var agrupado = registros
                 .GroupBy(r => r.NumeroLote)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            // Usar lotes que tienen movimientos o existen
             var lotesUnicos = lotes.Select(l => l.NumeroLote)
                 .Union(registros.Select(r => r.NumeroLote))
                 .Distinct()
@@ -87,20 +76,18 @@ public partial class HistorialMensualViewModel : ObservableObject
             {
                 var loteInfo = lotes.FirstOrDefault(l => l.NumeroLote == numeroLote);
                 var row = dt.NewRow();
-                row["Nº Lote"] = numeroLote;
-                row["Cant. Bolsas"] = loteInfo?.CantidadBolsasInicial ?? 400;
-                row["Despacho"] = loteInfo?.DespachoBolsas ?? 0;
-                row["Stock (kg)"] = loteInfo?.StockKg ?? 10000;
+                row["Nº DE LOTE"] = numeroLote;
+                row["CANTIDAD_BOLSAS"] = loteInfo?.CantidadBolsasInicial ?? 400;
+                row["DESPACHO"] = loteInfo?.DespachoBolsas ?? 0;
+                row["STOCK kg"] = loteInfo?.StockKg ?? 10000;
 
                 if (agrupado.TryGetValue(numeroLote, out var regsLote))
                 {
                     for (int d = 1; d <= diasEnMes; d++)
                     {
                         var fecha = new DateTime(Anio, Mes, d);
-
                         var turnoI = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I").Sum(r => r.CantidadBolsas);
                         var turnoII = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II").Sum(r => r.CantidadBolsas);
-
                         row[$"{d:D2} I"] = turnoI > 0 ? turnoI.ToString() : "";
                         row[$"{d:D2} II"] = turnoII > 0 ? turnoII.ToString() : "";
                     }
@@ -110,7 +97,7 @@ public partial class HistorialMensualViewModel : ObservableObject
             }
 
             TablaHistorial = dt;
-            Mensaje = $"{dt.Rows.Count} lote(s) · {registros.Count} registro(s) en {TituloMes}";
+            Mensaje = $"{dt.Rows.Count} lote(s)  ·  {registros.Count} registro(s)";
         }
         catch (Exception ex)
         {
@@ -124,10 +111,7 @@ public partial class HistorialMensualViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task Buscar()
-    {
-        await CargarAsync();
-    }
+    private async Task Buscar() => await CargarAsync();
 
     public async Task MostrarDetalleAsync(string numeroLote, int dia, string turno)
     {
