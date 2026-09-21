@@ -61,7 +61,7 @@
                                 CommandParameter="NuevaCarga">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="PlusBoxOutline" Width="20" Height="20" VerticalAlignment="Center"/>
-                                <TextBlock Text="Nueva Carga" Margin="14,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Nuevo Registro" Margin="14,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
