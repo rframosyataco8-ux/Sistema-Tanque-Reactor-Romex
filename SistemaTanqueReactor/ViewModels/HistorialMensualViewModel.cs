@@ -22,10 +22,9 @@ public partial class HistorialMensualViewModel : ObservableObject
 
     public ObservableCollection<int> Anios { get; } = new();
     public ObservableCollection<MesItem> Meses { get; } = new();
-
-    /// <summary>Lista de fechas del mes para el encabezado (una por día).</summary>
     public ObservableCollection<string> FechasEncabezado { get; } = new();
 
+    // Nombres exactos de la imagen
     public const string ColLote = "Nº DE LOTE";
     public const string ColBolsas = "CANTIDAD_BOLSAS";
     public const string ColStok = "STOOCK";
@@ -39,8 +38,8 @@ public partial class HistorialMensualViewModel : ObservableObject
 
         string[] nombres =
         {
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+            "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
         };
         for (int i = 1; i <= 12; i++)
             Meses.Add(new MesItem { Numero = i, Nombre = nombres[i - 1] });
@@ -53,7 +52,7 @@ public partial class HistorialMensualViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var nombreMes = Meses.First(m => m.Numero == Mes).Nombre.ToUpper();
+            var nombreMes = Meses.First(m => m.Numero == Mes).Nombre;
             TituloMes = nombreMes;
             Mensaje = "Cargando...";
 
@@ -61,13 +60,11 @@ public partial class HistorialMensualViewModel : ObservableObject
             var lotes = await _service.ObtenerLotesConStockAsync();
             DiasEnMes = DateTime.DaysInMonth(Anio, Mes);
 
-            // Encabezados de fecha: 20/09/2026, 21/09/2026, ...
             FechasEncabezado.Clear();
             for (int d = 1; d <= DiasEnMes; d++)
                 FechasEncabezado.Add($"{d:D2}/{Mes:D2}/{Anio}");
 
             var dt = new DataTable();
-
             dt.Columns.Add(ColLote, typeof(string));
             dt.Columns.Add(ColBolsas, typeof(int));
             dt.Columns.Add(ColStok, typeof(int));
@@ -101,16 +98,10 @@ public partial class HistorialMensualViewModel : ObservableObject
                     for (int d = 1; d <= DiasEnMes; d++)
                     {
                         var fecha = new DateTime(Anio, Mes, d);
-
-                        int turnoI = regsLote
-                            .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I")
-                            .Sum(r => r.CantidadBolsas);
-                        int turnoII = regsLote
-                            .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II")
-                            .Sum(r => r.CantidadBolsas);
-
-                        row[ColDia(d, "I")] = turnoI > 0 ? turnoI.ToString() : "";
-                        row[ColDia(d, "II")] = turnoII > 0 ? turnoII.ToString() : "";
+                        int tI = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I").Sum(r => r.CantidadBolsas);
+                        int tII = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II").Sum(r => r.CantidadBolsas);
+                        row[ColDia(d, "I")] = tI > 0 ? tI.ToString() : "";
+                        row[ColDia(d, "II")] = tII > 0 ? tII.ToString() : "";
                     }
                 }
 
@@ -118,7 +109,9 @@ public partial class HistorialMensualViewModel : ObservableObject
             }
 
             TablaHistorial = dt;
-            Mensaje = $"{dt.Rows.Count} lote(s)  ·  {registros.Count} registro(s)";
+            Mensaje = dt.Rows.Count == 0
+                ? "Sin lotes para este mes"
+                : $"{dt.Rows.Count} lote(s)  ·  {registros.Count} registro(s)";
         }
         catch (Exception ex)
         {
@@ -162,7 +155,6 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             sb.AppendLine(new string('-', 40));
             sb.AppendLine($"TOTAL: {total} bolsas = {total * 25:N0} kg");
-
             MessageBox.Show(sb.ToString(), "Detalle de cantidades", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
