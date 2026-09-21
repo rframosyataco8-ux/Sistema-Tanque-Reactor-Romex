@@ -9,14 +9,9 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IServiceProvider _services;
 
-    [ObservableProperty]
-    private object? _currentView;
-
-    [ObservableProperty]
-    private string _currentPageTitle = "Dashboard";
-
-    [ObservableProperty]
-    private DateTime _fechaActual = DateTime.Now;
+    [ObservableProperty] private object? _currentView;
+    [ObservableProperty] private string _currentPageTitle = "Dashboard";
+    [ObservableProperty] private DateTime _fechaActual = DateTime.Now;
 
     public MainViewModel(IServiceProvider services)
     {
@@ -35,11 +30,22 @@ public partial class MainViewModel : ObservableObject
             case "NuevaCarga":
                 NavigateToNuevoRegistro();
                 break;
-            case "Historial":
-                NavigateToHistorialMensual();
+            case "Registro":
+                // Planilla mensual (antes "Historial")
+                CurrentPageTitle = "Registro mensual";
+                var regVm = _services.GetRequiredService<HistorialMensualViewModel>();
+                CurrentView = new HistorialMensualView { DataContext = regVm };
+                _ = regVm.CargarAsync();
                 break;
-            case "Maestros":
-                CurrentPageTitle = "Maestros · Lotes y Operarios";
+            case "Historial":
+                // Lista completa de registros con editar/eliminar
+                CurrentPageTitle = "Historial de registros";
+                var histVm = _services.GetRequiredService<HistorialViewModel>();
+                CurrentView = new HistorialView { DataContext = histVm };
+                _ = histVm.CargarDatosAsync();
+                break;
+            case "Otros":
+                CurrentPageTitle = "Otros · Lotes y Operarios";
                 CurrentView = new MaestrosView();
                 break;
         }
@@ -59,13 +65,5 @@ public partial class MainViewModel : ObservableObject
         var vm = _services.GetRequiredService<NuevoRegistroViewModel>();
         CurrentView = new NuevoRegistroView { DataContext = vm };
         _ = vm.InicializarAsync();
-    }
-
-    private void NavigateToHistorialMensual()
-    {
-        CurrentPageTitle = "Historial Mensual";
-        var vm = _services.GetRequiredService<HistorialMensualViewModel>();
-        CurrentView = new HistorialMensualView { DataContext = vm };
-        _ = vm.CargarAsync();
     }
 }
