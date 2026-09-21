@@ -5,7 +5,7 @@ public class RegistroProduccion
     public int IdRegistro { get; set; }
     public string NumeroLote { get; set; } = string.Empty;
     public DateTime FechaProduccion { get; set; }
-    public string Turno { get; set; } = "I"; // I o II
+    public string Turno { get; set; } = "I";
     public int CantidadBolsas { get; set; }
     public string? ExpresionCantidad { get; set; }
     public DateTime FechaRegistro { get; set; } = DateTime.Now;
@@ -21,9 +21,22 @@ public class LoteTorta
     public string NumeroLote { get; set; } = string.Empty;
     public int CantidadBolsasInicial { get; set; } = 400;
     public int CantidadBolsasDisponible { get; set; } = 400;
+
+    /// <summary>Bolsas usadas en producción (reactor). NO es despacho.</summary>
+    public int ProduccionBolsas { get; set; }
+
+    /// <summary>Check: lote marcado como despachado.</summary>
+    public bool Despachado { get; set; }
+
     public int StockKg => CantidadBolsasDisponible * 25;
-    public int DespachoBolsas { get; set; }
     public DateTime? FechaIngreso { get; set; }
     public bool Activo { get; set; } = true;
     public DateTime FechaRegistro { get; set; } = DateTime.Now;
+
+    // Compatibilidad si algún binding viejo usaba DespachoBolsas
+    public int DespachoBolsas
+    {
+        get => ProduccionBolsas;
+        set => ProduccionBolsas = value;
+    }
 }

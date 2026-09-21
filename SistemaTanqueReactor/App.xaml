@@ -14,7 +14,6 @@
             <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-            <!-- Paleta de colores profesional -->
             <SolidColorBrush x:Key="PrimaryBrush" Color="#0D9488"/>
             <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#0F766E"/>
             <SolidColorBrush x:Key="PrimaryLightBrush" Color="#CCFBF1"/>
@@ -23,13 +22,59 @@
             <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF"/>
             <SolidColorBrush x:Key="SidebarBrush" Color="#0F172A"/>
             <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A"/>
-            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#64748B"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#475569"/>
             <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
             <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>
             <SolidColorBrush x:Key="DangerBrush" Color="#EF4444"/>
             <SolidColorBrush x:Key="BorderBrush" Color="#E2E8F0"/>
 
-            <!-- Card moderna con sombra suave -->
+            <!-- TEXTO SIEMPRE LEGIBLE en TextBox / ComboBox / DatePicker -->
+            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+                <Setter Property="Foreground" Value="#0F172A"/>
+                <Setter Property="CaretBrush" Value="#0F172A"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Padding" Value="10,8"/>
+            </Style>
+
+            <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
+                <Setter Property="Foreground" Value="#0F172A"/>
+                <Setter Property="FontSize" Value="14"/>
+            </Style>
+
+            <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
+                <Setter Property="Foreground" Value="#0F172A"/>
+                <Setter Property="FontSize" Value="14"/>
+            </Style>
+
+            <Style TargetType="PasswordBox" BasedOn="{StaticResource MaterialDesignOutlinedPasswordBox}">
+                <Setter Property="Foreground" Value="#0F172A"/>
+                <Setter Property="CaretBrush" Value="#0F172A"/>
+            </Style>
+
+            <!-- DataGrid: texto oscuro -->
+            <Style TargetType="DataGridCell">
+                <Setter Property="Foreground" Value="#0F172A"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="12,6"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="DataGridCell">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#CCFBF1"/>
+                        <Setter Property="Foreground" Value="#0F766E"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <Style x:Key="ModernCard" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource CardBrush}"/>
                 <Setter Property="CornerRadius" Value="16"/>
@@ -43,7 +88,6 @@
                 </Setter>
             </Style>
 
-            <!-- Botón primario -->
             <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
                 <Setter Property="Foreground" Value="White"/>
@@ -56,7 +100,6 @@
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
 
-            <!-- Botón outline -->
             <Style x:Key="OutlineButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
                 <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                 <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
@@ -68,7 +111,6 @@
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
 
-            <!-- Botón de menú lateral -->
             <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                 <Setter Property="Height" Value="52"/>
                 <Setter Property="Margin" Value="8,3"/>
@@ -95,7 +137,6 @@
                 </Setter>
             </Style>
 
-            <!-- Título de sección -->
             <Style x:Key="SectionTitle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="15"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
@@ -103,11 +144,10 @@
                 <Setter Property="Margin" Value="0,0,0,16"/>
             </Style>
 
-            <!-- Label de campo -->
             <Style x:Key="FieldLabel" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="12"/>
-                <Setter Property="FontWeight" Value="Medium"/>
-                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="#334155"/>
                 <Setter Property="Margin" Value="0,0,0,6"/>
             </Style>
 

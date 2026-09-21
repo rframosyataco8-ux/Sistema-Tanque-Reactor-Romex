@@ -1,7 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using SistemaTanqueReactor.Models;
-using System.Data;
 
 namespace SistemaTanqueReactor.Services;
 
@@ -43,8 +42,8 @@ public class ProduccionService
         if (!exists)
         {
             using var insert = new SqlCommand(
-                @"INSERT INTO LotesTorta (NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible, DespachoBolsas, FechaIngreso)
-                  VALUES (@lote, 400, 400, 0, @fecha)", conn);
+                @"INSERT INTO LotesTorta (NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible, ProduccionBolsas, Despachado, FechaIngreso)
+                  VALUES (@lote, 400, 400, 0, 0, @fecha)", conn);
             insert.Parameters.AddWithValue("@lote", numeroLote);
             insert.Parameters.AddWithValue("@fecha", DateTime.Today);
             await insert.ExecuteNonQueryAsync();
@@ -75,11 +74,11 @@ public class ProduccionService
             cmd.Parameters.AddWithValue("@obs", (object?)registro.Observaciones ?? DBNull.Value);
             await cmd.ExecuteNonQueryAsync();
 
-            // Actualizar stock del lote (restar bolsas usadas)
+            // PRODUCCIÓN: resta disponible y suma a ProduccionBolsas (NO es despacho)
             using var upd = new SqlCommand(
                 @"UPDATE LotesTorta 
                   SET CantidadBolsasDisponible = CantidadBolsasDisponible - @cantidad,
-                      DespachoBolsas = DespachoBolsas + @cantidad
+                      ProduccionBolsas = ProduccionBolsas + @cantidad
                   WHERE NumeroLote = @lote", conn, tran);
             upd.Parameters.AddWithValue("@cantidad", registro.CantidadBolsas);
             upd.Parameters.AddWithValue("@lote", registro.NumeroLote);
@@ -134,9 +133,12 @@ public class ProduccionService
         using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync();
 
+        // Soporta columna nueva o antigua
         using var cmd = new SqlCommand(
-            @"SELECT IdLoteTorta, NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible, 
-                     DespachoBolsas, FechaIngreso, Activo, FechaRegistro
+            @"SELECT IdLoteTorta, NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible,
+                     ISNULL(ProduccionBolsas, 0),
+                     ISNULL(Despachado, 0),
+                     FechaIngreso, Activo, FechaRegistro
               FROM LotesTorta WHERE Activo = 1 ORDER BY NumeroLote", conn);
 
         using var reader = await cmd.ExecuteReaderAsync();
@@ -148,13 +150,25 @@ public class ProduccionService
                 NumeroLote = reader.GetString(1),
                 CantidadBolsasInicial = reader.GetInt32(2),
                 CantidadBolsasDisponible = reader.GetInt32(3),
-                DespachoBolsas = reader.GetInt32(4),
-                FechaIngreso = reader.IsDBNull(5) ? null : reader.GetDateTime(5),
-                Activo = reader.GetBoolean(6),
-                FechaRegistro = reader.GetDateTime(7)
+                ProduccionBolsas = reader.GetInt32(4),
+                Despachado = reader.GetBoolean(5),
+                FechaIngreso = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
+                Activo = reader.GetBoolean(7),
+                FechaRegistro = reader.GetDateTime(8)
             });
         }
         return lista;
+    }
+
+    public async Task MarcarDespachadoAsync(string numeroLote, bool despachado)
+    {
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+        using var cmd = new SqlCommand(
+            "UPDATE LotesTorta SET Despachado = @d WHERE NumeroLote = @l", conn);
+        cmd.Parameters.AddWithValue("@d", despachado);
+        cmd.Parameters.AddWithValue("@l", numeroLote);
+        await cmd.ExecuteNonQueryAsync();
     }
 
     public async Task<List<RegistroProduccion>> ObtenerDetalleCeldaAsync(string numeroLote, DateTime fecha, string turno)
@@ -192,17 +206,12 @@ public class ProduccionService
         return lista;
     }
 
-    /// <summary>
-    /// Evalúa expresiones como "30+30+30+30" o "28+2" y devuelve el total.
-    /// </summary>
     public static int EvaluarExpresion(string expresion)
     {
         if (string.IsNullOrWhiteSpace(expresion))
             return 0;
 
         expresion = expresion.Replace(" ", "");
-
-        // Solo permitir números y +
         if (!System.Text.RegularExpressions.Regex.IsMatch(expresion, @"^[0-9+]+$"))
             throw new ArgumentException("Solo se permiten números y el signo +");
 
