@@ -1,0 +1,220 @@
+<UserControl x:Class="SistemaTanqueReactor.Views.NuevaCargaView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+
+            <!-- DATOS GENERALES -->
+            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Datos generales de la carga" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Fecha" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <DatePicker SelectedDate="{Binding Fecha}" materialDesign:HintAssist.Hint="Fecha" Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Turno" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding Turnos}" 
+                                      SelectedItem="{Binding TurnoSeleccionado}"
+                                      DisplayMemberPath="Nombre"
+                                      materialDesign:HintAssist.Hint="Turno"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Operario" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding Operarios}" 
+                                      SelectedItem="{Binding OperarioSeleccionado}"
+                                      DisplayMemberPath="NombreCompleto"
+                                      materialDesign:HintAssist.Hint="Operario"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="6">
+                            <TextBlock Text="N° Carga del turno" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding NumeroCargaDelTurno}" 
+                                     materialDesign:HintAssist.Hint="N° Carga"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- INSUMOS -->
+            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="Insumos de la carga" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource OutlineButton}" 
+                                    Command="{Binding AgregarCargaEstandarCommand}"
+                                    Content="+ 28 Torta + 2 Merma" Margin="0,0,8,0"/>
+                            <Button Style="{StaticResource OutlineButton}" 
+                                    Command="{Binding AgregarInsumoCommand}"
+                                    Content="+ Agregar"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <DataGrid ItemsSource="{Binding Insumos}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              materialDesign:DataGridAssist.CellPadding="12,8"
+                              materialDesign:DataGridAssist.ColumnHeaderPadding="12,10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Insumo" Binding="{Binding NombreInsumo}" Width="*" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="N° Lote" Binding="{Binding NumeroLote, UpdateSourceTrigger=PropertyChanged}" Width="140"/>
+                            <DataGridTextColumn Header="Bolsas" Binding="{Binding CantidadBolsas, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                            <DataGridTextColumn Header="Kg" Binding="{Binding CantidadKg, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="Es Merma" Binding="{Binding EsMerma}" Width="90"/>
+                            <DataGridTemplateColumn Header="" Width="60">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                Command="{Binding DataContext.EliminarInsumoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Eliminar">
+                                            <materialDesign:PackIcon Kind="Delete" Foreground="{StaticResource DangerBrush}"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- TIEMPOS -->
+            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Tiempos del proceso" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="16"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0">
+                            <TextBlock Text="Hora Inicio Carga" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding HoraInicioCarga}" materialDesign:HintAssist.Hint="HH:mm" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="2">
+                            <TextBlock Text="Hora Fin Carga" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding HoraFinCarga}" materialDesign:HintAssist.Hint="HH:mm" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="4">
+                            <TextBlock Text="Inicio Solución" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding HoraInicioSolucion}" materialDesign:HintAssist.Hint="HH:mm" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="0">
+                            <TextBlock Text="Fin Solución" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding HoraFinSolucion}" materialDesign:HintAssist.Hint="HH:mm" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="2">
+                            <TextBlock Text="Inicio Vacío" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding HoraInicioVacio}" materialDesign:HintAssist.Hint="HH:mm" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="4">
+                            <TextBlock Text="Tiempo Secado al Vacío" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding TiempoSecado}" materialDesign:HintAssist.Hint="ej: 2 HR" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- PARÁMETROS FINALES -->
+            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Parámetros del producto final" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="pH" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding pH}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Humedad %" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding Humedad}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Temp. Producto" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding TempProductoFinal}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="6">
+                            <TextBlock Text="Cantidad Elaborada (kg)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding CantidadElaborada}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Lote Producto Final" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding LoteProductoFinal}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Stock (kg)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding Stock}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Margin="0,16,0,0">
+                        <TextBlock Text="Observaciones" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding Observaciones}" 
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 AcceptsReturn="True" Height="70" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,20">
+                <Button Style="{StaticResource PrimaryButton}"
+                        Command="{Binding GuardarCargaCommand}"
+                        IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBooleanConverter}, FallbackValue=True}"
+                        Content="Guardar Carga"
+                        Width="180"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
