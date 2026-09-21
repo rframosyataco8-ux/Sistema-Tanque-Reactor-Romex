@@ -39,8 +39,8 @@ public partial class MainViewModel : ObservableObject
                 NavigateToHistorialMensual();
                 break;
             case "Maestros":
-                CurrentPageTitle = "Maestros";
-                CurrentView = new TextBlockPlaceholder("Módulo de Maestros - Próximamente");
+                CurrentPageTitle = "Maestros · Lotes y Operarios";
+                CurrentView = new MaestrosView();
                 break;
         }
     }
@@ -67,17 +67,5 @@ public partial class MainViewModel : ObservableObject
         var vm = _services.GetRequiredService<HistorialMensualViewModel>();
         CurrentView = new HistorialMensualView { DataContext = vm };
         _ = vm.CargarAsync();
-    }
-}
-
-public class TextBlockPlaceholder : System.Windows.Controls.TextBlock
-{
-    public TextBlockPlaceholder(string text)
-    {
-        Text = text;
-        FontSize = 18;
-        HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-        VerticalAlignment = System.Windows.VerticalAlignment.Center;
-        Foreground = System.Windows.Media.Brushes.Gray;
     }
 }
