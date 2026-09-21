@@ -10,7 +10,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Título del mes (como en la planilla) -->
+        <!-- Barra superior: mes + filtros -->
         <Border Grid.Row="0" Background="#0F766E" CornerRadius="12,12,0,0" Padding="0,14">
             <Grid>
                 <TextBlock Text="{Binding TituloMes}"
@@ -39,12 +39,9 @@
         </Border>
 
         <!-- Leyenda -->
-        <Border Grid.Row="1" Background="#F0FDFA" BorderBrush="#99F6E4" BorderThickness="1,0,1,1"
-                Padding="16,10">
+        <Border Grid.Row="1" Background="#F0FDFA" BorderBrush="#99F6E4" BorderThickness="1,0,1,1" Padding="16,10">
             <Grid>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Mensaje}" FontSize="12" Foreground="#0F766E" VerticalAlignment="Center"/>
-                </StackPanel>
+                <TextBlock Text="{Binding Mensaje}" FontSize="12" Foreground="#0F766E" VerticalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Border Background="#CCFBF1" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
                         <TextBlock Text="I = Turno Día" FontSize="11" FontWeight="SemiBold" Foreground="#0D9488"/>
@@ -52,22 +49,24 @@
                     <Border Background="#E0E7FF" CornerRadius="4" Padding="8,3">
                         <TextBlock Text="II = Turno Noche" FontSize="11" FontWeight="SemiBold" Foreground="#4338CA"/>
                     </Border>
-                    <TextBlock Text="  ·  Doble clic en celda = detalle" FontSize="11" Foreground="#64748B" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    <TextBlock Text="  ·  Doble clic = detalle" FontSize="11" Foreground="#64748B"
+                               VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Tabla planilla — estructura igual a la imagen -->
-        <Border Grid.Row="2" Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+        <!-- Planilla -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
                 CornerRadius="0,0,12,12" ClipToBounds="True">
             <DataGrid x:Name="DgHistorial"
                       ItemsSource="{Binding TablaHistorial}"
-                      AutoGenerateColumns="True"
+                      AutoGenerateColumns="False"
                       IsReadOnly="True"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
                       CanUserReorderColumns="False"
                       CanUserResizeRows="False"
+                      CanUserSortColumns="False"
                       HeadersVisibility="Column"
                       GridLinesVisibility="All"
                       HorizontalGridLinesBrush="#E2E8F0"
@@ -77,65 +76,13 @@
                       BorderThickness="0"
                       FontSize="12"
                       FontFamily="Segoe UI"
-                      RowHeight="36"
-                      ColumnHeaderHeight="52"
+                      RowHeight="34"
+                      ColumnHeaderHeight="48"
                       FrozenColumnCount="3"
                       EnableRowVirtualization="True"
-                      materialDesign:DataGridAssist.CellPadding="6,4"
-                      MouseDoubleClick="DgHistorial_MouseDoubleClick"
-                      AutoGeneratingColumn="DgHistorial_AutoGeneratingColumn">
-
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F1F5F9"/>
-                        <Setter Property="Foreground" Value="#1E293B"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="FontSize" Value="11"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                        <Setter Property="VerticalContentAlignment" Value="Center"/>
-                        <Setter Property="Padding" Value="4,6"/>
-                        <Setter Property="BorderBrush" Value="#CBD5E1"/>
-                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="DataGridColumnHeader">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
-
-                <DataGrid.CellStyle>
-                    <Style TargetType="DataGridCell">
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="4,4"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="DataGridCell">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="#E2E8F0" BorderThickness="0,0,1,0"
-                                            Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#CCFBF1"/>
-                                <Setter Property="Foreground" Value="#0F766E"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.CellStyle>
-            </DataGrid>
+                      SelectionUnit="Cell"
+                      SelectionMode="Single"
+                      MouseDoubleClick="DgHistorial_MouseDoubleClick"/>
         </Border>
     </Grid>
 </UserControl>

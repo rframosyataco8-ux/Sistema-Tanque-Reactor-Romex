@@ -18,9 +18,15 @@ public partial class HistorialMensualViewModel : ObservableObject
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _mensaje = "";
     [ObservableProperty] private string _tituloMes = "";
+    [ObservableProperty] private int _diasEnMes;
 
     public ObservableCollection<int> Anios { get; } = new();
     public ObservableCollection<MesItem> Meses { get; } = new();
+
+    // Nombres internos de columnas fijas
+    public const string ColLote = "Nº de lote";
+    public const string ColBolsas = "cantidad_bolsas";
+    public const string ColStok = "stok";
 
     public HistorialMensualViewModel(ProduccionService service)
     {
@@ -29,11 +35,17 @@ public partial class HistorialMensualViewModel : ObservableObject
         for (int a = DateTime.Today.Year; a >= DateTime.Today.Year - 3; a--)
             Anios.Add(a);
 
-        string[] nombres = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+        string[] nombres =
+        {
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        };
         for (int i = 1; i <= 12; i++)
             Meses.Add(new MesItem { Numero = i, Nombre = nombres[i - 1] });
     }
+
+    /// <summary>Nombre interno de columna de un día/turno (ej: D20_I).</summary>
+    public static string ColDia(int dia, string turno) => $"D{dia:D2}_{turno}";
 
     public async Task CargarAsync()
     {
@@ -46,22 +58,20 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             var registros = await _service.ObtenerRegistrosDelMesAsync(Anio, Mes);
             var lotes = await _service.ObtenerLotesConStockAsync();
-            int diasEnMes = DateTime.DaysInMonth(Anio, Mes);
+            DiasEnMes = DateTime.DaysInMonth(Anio, Mes);
 
             var dt = new DataTable();
 
-            // Columnas fijas — exactamente como la planilla de la imagen
-            dt.Columns.Add("Nº de lote", typeof(string));
-            dt.Columns.Add("cantidad_bolsas", typeof(int));
-            dt.Columns.Add("stok", typeof(int));
+            // Columnas fijas (planilla)
+            dt.Columns.Add(ColLote, typeof(string));
+            dt.Columns.Add(ColBolsas, typeof(int));
+            dt.Columns.Add(ColStok, typeof(int));
 
-            // Por cada día: Turno I y Turno II (formato fecha corto + turno)
-            for (int d = 1; d <= diasEnMes; d++)
+            // Una columna por día y turno (nombres internos estables)
+            for (int d = 1; d <= DiasEnMes; d++)
             {
-                // Header visible: "20/09 I"  "20/09 II"
-                string etiqueta = $"{d:D2}/{Mes:D2}";
-                dt.Columns.Add($"{etiqueta} I", typeof(string));
-                dt.Columns.Add($"{etiqueta} II", typeof(string));
+                dt.Columns.Add(ColDia(d, "I"), typeof(string));
+                dt.Columns.Add(ColDia(d, "II"), typeof(string));
             }
 
             var agrupado = registros
@@ -78,27 +88,25 @@ public partial class HistorialMensualViewModel : ObservableObject
                 var loteInfo = lotes.FirstOrDefault(l => l.NumeroLote == numeroLote);
                 var row = dt.NewRow();
 
-                row["Nº de lote"] = numeroLote;
-                row["cantidad_bolsas"] = loteInfo?.CantidadBolsasInicial ?? 400;
-                // stok = bolsas disponibles restantes (como en la planilla)
-                row["stok"] = loteInfo?.CantidadBolsasDisponible ?? 400;
+                row[ColLote] = numeroLote;
+                row[ColBolsas] = loteInfo?.CantidadBolsasInicial ?? 400;
+                row[ColStok] = loteInfo?.CantidadBolsasDisponible ?? 400;
 
                 if (agrupado.TryGetValue(numeroLote, out var regsLote))
                 {
-                    for (int d = 1; d <= diasEnMes; d++)
+                    for (int d = 1; d <= DiasEnMes; d++)
                     {
                         var fecha = new DateTime(Anio, Mes, d);
-                        string etiqueta = $"{d:D2}/{Mes:D2}";
 
-                        var turnoI = regsLote
+                        int turnoI = regsLote
                             .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I")
                             .Sum(r => r.CantidadBolsas);
-                        var turnoII = regsLote
+                        int turnoII = regsLote
                             .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II")
                             .Sum(r => r.CantidadBolsas);
 
-                        row[$"{etiqueta} I"] = turnoI > 0 ? turnoI.ToString() : "";
-                        row[$"{etiqueta} II"] = turnoII > 0 ? turnoII.ToString() : "";
+                        row[ColDia(d, "I")] = turnoI > 0 ? turnoI.ToString() : "";
+                        row[ColDia(d, "II")] = turnoII > 0 ? turnoII.ToString() : "";
                     }
                 }
 
