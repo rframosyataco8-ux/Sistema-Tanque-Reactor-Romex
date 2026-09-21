@@ -32,25 +32,57 @@ public partial class LotesViewModel : ObservableObject
             var lista = new ObservableCollection<LoteTorta>();
             using var conn = new SqlConnection(_cs);
             await conn.OpenAsync();
-            using var cmd = new SqlCommand(
-                @"SELECT IdLoteTorta, NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible,
-                         DespachoBolsas, FechaIngreso, Observaciones, Activo, FechaRegistro
-                  FROM LotesTorta WHERE Activo = 1 ORDER BY FechaRegistro DESC", conn);
-            using var r = await cmd.ExecuteReaderAsync();
-            while (await r.ReadAsync())
+
+            // Intenta schema nuevo; si falla, schema viejo
+            try
             {
-                lista.Add(new LoteTorta
+                using var cmd = new SqlCommand(
+                    @"SELECT IdLoteTorta, NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible,
+                             ISNULL(ProduccionBolsas, 0), ISNULL(Despachado, 0),
+                             FechaIngreso, Activo, FechaRegistro
+                      FROM LotesTorta WHERE Activo = 1 ORDER BY FechaRegistro DESC", conn);
+                using var r = await cmd.ExecuteReaderAsync();
+                while (await r.ReadAsync())
                 {
-                    IdLoteTorta = r.GetInt32(0),
-                    NumeroLote = r.GetString(1),
-                    CantidadBolsasInicial = r.GetInt32(2),
-                    CantidadBolsasDisponible = r.GetInt32(3),
-                    DespachoBolsas = r.GetInt32(4),
-                    FechaIngreso = r.IsDBNull(5) ? null : r.GetDateTime(5),
-                    Activo = r.GetBoolean(7),
-                    FechaRegistro = r.GetDateTime(8)
-                });
+                    lista.Add(new LoteTorta
+                    {
+                        IdLoteTorta = r.GetInt32(0),
+                        NumeroLote = r.GetString(1),
+                        CantidadBolsasInicial = r.GetInt32(2),
+                        CantidadBolsasDisponible = r.GetInt32(3),
+                        ProduccionBolsas = r.GetInt32(4),
+                        Despachado = r.GetBoolean(5),
+                        FechaIngreso = r.IsDBNull(6) ? null : r.GetDateTime(6),
+                        Activo = r.GetBoolean(7),
+                        FechaRegistro = r.GetDateTime(8)
+                    });
+                }
             }
+            catch
+            {
+                // Schema antiguo: DespachoBolsas = producción histórica
+                using var cmd = new SqlCommand(
+                    @"SELECT IdLoteTorta, NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible,
+                             DespachoBolsas, FechaIngreso, Activo, FechaRegistro
+                      FROM LotesTorta WHERE Activo = 1 ORDER BY FechaRegistro DESC", conn);
+                using var r = await cmd.ExecuteReaderAsync();
+                while (await r.ReadAsync())
+                {
+                    lista.Add(new LoteTorta
+                    {
+                        IdLoteTorta = r.GetInt32(0),
+                        NumeroLote = r.GetString(1),
+                        CantidadBolsasInicial = r.GetInt32(2),
+                        CantidadBolsasDisponible = r.GetInt32(3),
+                        ProduccionBolsas = r.GetInt32(4),
+                        Despachado = false,
+                        FechaIngreso = r.IsDBNull(5) ? null : r.GetDateTime(5),
+                        Activo = r.GetBoolean(6),
+                        FechaRegistro = r.GetDateTime(7)
+                    });
+                }
+            }
+
             Lotes = lista;
             Mensaje = $"{lista.Count} lote(s)";
         }
@@ -83,14 +115,28 @@ public partial class LotesViewModel : ObservableObject
                 return;
             }
 
-            using var cmd = new SqlCommand(
-                @"INSERT INTO LotesTorta (NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible, DespachoBolsas, FechaIngreso, Observaciones)
-                  VALUES (@l, @bolsas, @bolsas, 0, @fecha, @obs)", conn);
-            cmd.Parameters.AddWithValue("@l", NumeroLote.Trim());
-            cmd.Parameters.AddWithValue("@bolsas", CantidadBolsas);
-            cmd.Parameters.AddWithValue("@fecha", (object?)FechaIngreso ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@obs", string.IsNullOrWhiteSpace(Observaciones) ? DBNull.Value : Observaciones);
-            await cmd.ExecuteNonQueryAsync();
+            try
+            {
+                using var cmd = new SqlCommand(
+                    @"INSERT INTO LotesTorta (NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible, ProduccionBolsas, Despachado, FechaIngreso, Observaciones)
+                      VALUES (@l, @bolsas, @bolsas, 0, 0, @fecha, @obs)", conn);
+                cmd.Parameters.AddWithValue("@l", NumeroLote.Trim());
+                cmd.Parameters.AddWithValue("@bolsas", CantidadBolsas);
+                cmd.Parameters.AddWithValue("@fecha", (object?)FechaIngreso ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@obs", string.IsNullOrWhiteSpace(Observaciones) ? DBNull.Value : Observaciones);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch
+            {
+                using var cmd = new SqlCommand(
+                    @"INSERT INTO LotesTorta (NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible, DespachoBolsas, FechaIngreso, Observaciones)
+                      VALUES (@l, @bolsas, @bolsas, 0, @fecha, @obs)", conn);
+                cmd.Parameters.AddWithValue("@l", NumeroLote.Trim());
+                cmd.Parameters.AddWithValue("@bolsas", CantidadBolsas);
+                cmd.Parameters.AddWithValue("@fecha", (object?)FechaIngreso ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@obs", string.IsNullOrWhiteSpace(Observaciones) ? DBNull.Value : Observaciones);
+                await cmd.ExecuteNonQueryAsync();
+            }
 
             MessageBox.Show($"Lote {NumeroLote} creado ({CantidadBolsas} bolsas = {CantidadBolsas * 25:N0} kg).", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             NumeroLote = "";
@@ -103,6 +149,36 @@ public partial class LotesViewModel : ObservableObject
             MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally { IsSaving = false; }
+    }
+
+    [RelayCommand]
+    private async Task ToggleDespachado(LoteTorta? lote)
+    {
+        if (lote == null) return;
+        try
+        {
+            using var conn = new SqlConnection(_cs);
+            await conn.OpenAsync();
+            try
+            {
+                using var cmd = new SqlCommand(
+                    "UPDATE LotesTorta SET Despachado = @d WHERE NumeroLote = @l", conn);
+                cmd.Parameters.AddWithValue("@d", lote.Despachado);
+                cmd.Parameters.AddWithValue("@l", lote.NumeroLote);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch
+            {
+                // Columna aún no existe: pedir migración
+                MessageBox.Show(
+                    "Ejecuta Database/AlterProduccionDespacho.sql en SSMS para activar el check Despachado.",
+                    "Migración requerida", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     [RelayCommand]

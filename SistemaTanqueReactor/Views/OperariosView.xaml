@@ -9,7 +9,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Formulario -->
         <Border Grid.Row="0" Background="White" CornerRadius="14" Padding="20" Margin="0,0,0,16"
                 BorderBrush="#E2E8F0" BorderThickness="1">
             <StackPanel>
@@ -26,15 +25,16 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Nombres" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Text="{Binding Nombres}" Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="42"/>
+                        <TextBox Text="{Binding Nombres}" Height="42"
+                                 materialDesign:HintAssist.Hint="Ej: Marco"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Apellidos" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Text="{Binding Apellidos}" Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="42"/>
+                        <TextBox Text="{Binding Apellidos}" Height="42"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="DNI" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Text="{Binding Dni}" Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="42"/>
+                        <TextBox Text="{Binding Dni}" Height="42"/>
                     </StackPanel>
                     <Button Grid.Column="6" Style="{StaticResource PrimaryButton}" Command="{Binding GuardarCommand}"
                             Content="Guardar" VerticalAlignment="Bottom" Height="42" Width="120"/>
@@ -43,18 +43,17 @@
             </StackPanel>
         </Border>
 
-        <!-- Tabla -->
         <Border Grid.Row="1" Background="White" CornerRadius="14" BorderBrush="#E2E8F0" BorderThickness="1" ClipToBounds="True">
             <DataGrid ItemsSource="{Binding Operarios}" AutoGenerateColumns="False" IsReadOnly="True"
                       CanUserAddRows="False" HeadersVisibility="Column" BorderThickness="0"
                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
                       AlternatingRowBackground="#F8FAFC" RowBackground="White"
-                      RowHeight="42" ColumnHeaderHeight="44" FontSize="13"
-                      materialDesign:DataGridAssist.CellPadding="14,8">
+                      RowHeight="44" ColumnHeaderHeight="46" FontSize="13"
+                      Foreground="#0F172A">
                 <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                    <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#F1F5F9"/>
-                        <Setter Property="Foreground" Value="#334155"/>
+                        <Setter Property="Foreground" Value="#1E293B"/>
                         <Setter Property="FontWeight" Value="SemiBold"/>
                         <Setter Property="FontSize" Value="12"/>
                         <Setter Property="Padding" Value="14,10"/>
