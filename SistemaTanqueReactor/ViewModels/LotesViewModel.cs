@@ -33,7 +33,6 @@ public partial class LotesViewModel : ObservableObject
             using var conn = new SqlConnection(_cs);
             await conn.OpenAsync();
 
-            // Intenta schema nuevo; si falla, schema viejo
             try
             {
                 using var cmd = new SqlCommand(
@@ -60,7 +59,6 @@ public partial class LotesViewModel : ObservableObject
             }
             catch
             {
-                // Schema antiguo: DespachoBolsas = producción histórica
                 using var cmd = new SqlCommand(
                     @"SELECT IdLoteTorta, NumeroLote, CantidadBolsasInicial, CantidadBolsasDisponible,
                              DespachoBolsas, FechaIngreso, Activo, FechaRegistro
@@ -166,10 +164,11 @@ public partial class LotesViewModel : ObservableObject
                 cmd.Parameters.AddWithValue("@d", lote.Despachado);
                 cmd.Parameters.AddWithValue("@l", lote.NumeroLote);
                 await cmd.ExecuteNonQueryAsync();
+                // Recargar para aplicar color verde en la fila
+                await CargarAsync();
             }
             catch
             {
-                // Columna aún no existe: pedir migración
                 MessageBox.Show(
                     "Ejecuta Database/AlterProduccionDespacho.sql en SSMS para activar el check Despachado.",
                     "Migración requerida", MessageBoxButton.OK, MessageBoxImage.Information);
