@@ -63,7 +63,7 @@ public partial class NuevaCargaViewModel : ObservableObject
 
     // Parámetros finales
     [ObservableProperty]
-    private string _pH = "";
+    private string _ph = "";
 
     [ObservableProperty]
     private string _humedad = "";
@@ -213,7 +213,7 @@ public partial class NuevaCargaViewModel : ObservableObject
                 HoraInicioVacio = ParseTime(HoraInicioVacio),
                 HoraFinVacio = ParseTime(HoraFinVacio),
                 TiempoSecadoAlVacio = TiempoSecado,
-                pH = ParseDecimal(pH),
+                pH = ParseDecimal(Ph),
                 Humedad = ParseDecimal(Humedad),
                 TempProductoFinal = ParseDecimal(TempProductoFinal),
                 CantidadElaboradaKg = ParseDecimal(CantidadElaborada),
@@ -264,7 +264,7 @@ public partial class NuevaCargaViewModel : ObservableObject
         Insumos.Clear();
         HoraInicioCarga = HoraFinCarga = HoraInicioSolucion = HoraFinSolucion = "";
         HoraInicioVacio = HoraFinVacio = TiempoSecado = "";
-        pH = Humedad = TempProductoFinal = CantidadElaborada = LoteProductoFinal = Stock = "";
+        Ph = Humedad = TempProductoFinal = CantidadElaborada = LoteProductoFinal = Stock = "";
         Observaciones = "";
         Mensaje = "";
     }
