@@ -20,15 +20,13 @@ public partial class HistorialMensualView : UserControl
         if (col == null) return;
 
         string header = col.Header?.ToString() ?? "";
-        // Headers de días: "01 I", "01 II", "18 I", etc.
-        if (header.Length < 4) return;
-
+        // Headers: "01 I", "01 II", "18 I", etc.
         var parts = header.Split(' ');
         if (parts.Length != 2) return;
         if (!int.TryParse(parts[0], out int dia)) return;
-        string turno = parts[1]; // I o II
+        string turno = parts[1];
 
-        string numeroLote = row["Nº Lote"]?.ToString() ?? "";
+        string numeroLote = row["Nº DE LOTE"]?.ToString() ?? "";
         if (string.IsNullOrEmpty(numeroLote)) return;
 
         await vm.MostrarDetalleAsync(numeroLote, dia, turno);
