@@ -30,17 +30,17 @@ public partial class App : Application
         services.AddDbContext<TanqueReactorContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // Services
         services.AddScoped<CargaService>();
         services.AddSingleton<ProduccionService>();
 
-        // ViewModels
         services.AddTransient<MainViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<NuevaCargaViewModel>();
         services.AddTransient<HistorialViewModel>();
         services.AddTransient<NuevoRegistroViewModel>();
         services.AddTransient<HistorialMensualViewModel>();
+        services.AddTransient<LotesViewModel>();
+        services.AddTransient<OperariosViewModel>();
 
         services.AddTransient<MainWindow>();
 
@@ -55,7 +55,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"No se pudo conectar a la base de datos.\n\nVerifica:\n1. Que SQL Server esté corriendo\n2. Que hayas ejecutado los scripts SQL\n3. La cadena de conexión en appsettings.json\n\nError: {ex.Message}",
+                $"No se pudo conectar a la base de datos.\n\n1. Ejecuta Database/TanqueReactorDB.sql en SSMS\n2. Revisa appsettings.json\n\nError: {ex.Message}",
                 "Error de conexión",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
