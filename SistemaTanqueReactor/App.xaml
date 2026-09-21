@@ -12,6 +12,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
             <!-- Paleta de colores profesional -->
             <SolidColorBrush x:Key="PrimaryBrush" Color="#0D9488"/>
