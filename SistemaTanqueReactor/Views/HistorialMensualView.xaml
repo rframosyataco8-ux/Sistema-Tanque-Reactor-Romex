@@ -3,61 +3,135 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
-    <DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- Filtros -->
-        <Border DockPanel.Dock="Top" Style="{StaticResource ModernCard}" Margin="0,0,0,16" Padding="20,16">
+        <!-- Barra de filtros -->
+        <Border Grid.Row="0" Background="White" CornerRadius="14" Padding="20,14" Margin="0,0,0,16"
+                BorderBrush="#E2E8F0" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Año" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                <ComboBox Grid.Column="2" ItemsSource="{Binding Anios}" SelectedItem="{Binding Anio}"
-                          Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#CCFBF1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0">
+                        <materialDesign:PackIcon Kind="CalendarMonth" Width="18" Height="18"
+                                                 Foreground="#0D9488"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{Binding TituloMes}" FontSize="16" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Foreground="#0F172A"/>
+                </StackPanel>
 
-                <TextBlock Grid.Column="4" Text="Mes" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                <ComboBox Grid.Column="6" ItemsSource="{Binding Meses}"
-                          SelectedValue="{Binding Mes}" SelectedValuePath="Numero"
-                          DisplayMemberPath="Nombre"
-                          Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="Año" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding Anios}" SelectedItem="{Binding Anio}"
+                              Width="90" Height="40" Margin="0,0,16,0"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
 
-                <Button Grid.Column="8" Style="{StaticResource PrimaryButton}"
-                        Command="{Binding BuscarCommand}" Content="Cargar mes"/>
+                    <TextBlock Text="Mes" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#64748B" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding Meses}"
+                              SelectedValue="{Binding Mes}" SelectedValuePath="Numero"
+                              DisplayMemberPath="Nombre"
+                              Width="140" Height="40" Margin="0,0,16,0"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+
+                    <Button Style="{StaticResource PrimaryButton}"
+                            Command="{Binding BuscarCommand}"
+                            Height="40" Padding="20,0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="Cargar" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 
-        <TextBlock DockPanel.Dock="Top" Text="{Binding Mensaje}"
-                   Margin="0,0,0,10" Foreground="{StaticResource TextSecondaryBrush}"/>
+        <!-- Info -->
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Text="{Binding Mensaje}" FontSize="13" Foreground="#64748B" VerticalAlignment="Center"/>
+            <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center">
+                <Run Text="Doble clic en una celda"/>
+                <Run Text=" → " FontWeight="Bold"/>
+                <Run Text="ver detalle de la suma"/>
+            </TextBlock>
+        </Grid>
 
-        <TextBlock DockPanel.Dock="Top" Text="Doble clic en una celda de cantidad para ver el detalle de la suma"
-                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-
-        <!-- Tabla tipo Excel -->
-        <Border Style="{StaticResource ModernCard}" Padding="0">
+        <!-- Tabla -->
+        <Border Grid.Row="2" Background="White" CornerRadius="14"
+                BorderBrush="#E2E8F0" BorderThickness="1"
+                ClipToBounds="True">
             <DataGrid x:Name="DgHistorial"
                       ItemsSource="{Binding TablaHistorial}"
                       AutoGenerateColumns="True"
                       IsReadOnly="True"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserResizeRows="False"
                       HeadersVisibility="Column"
-                      GridLinesVisibility="All"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#F1F5F9"
                       AlternatingRowBackground="#F8FAFC"
                       RowBackground="White"
+                      BorderThickness="0"
                       FontSize="13"
-                      materialDesign:DataGridAssist.CellPadding="10,8"
-                      materialDesign:DataGridAssist.ColumnHeaderPadding="10,10"
-                      MouseDoubleClick="DgHistorial_MouseDoubleClick"/>
-        </Border>
+                      RowHeight="40"
+                      ColumnHeaderHeight="44"
+                      EnableRowVirtualization="True"
+                      EnableColumnVirtualization="True"
+                      FrozenColumnCount="4"
+                      materialDesign:DataGridAssist.CellPadding="12,6"
+                      materialDesign:DataGridAssist.ColumnHeaderPadding="12,10"
+                      MouseDoubleClick="DgHistorial_MouseDoubleClick">
 
-    </DockPanel>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                        <Setter Property="Background" Value="#F1F5F9"/>
+                        <Setter Property="Foreground" Value="#334155"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridCell">
+                                    <Border Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}"
+                                            BorderBrush="#F1F5F9" BorderThickness="0,0,1,0">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#CCFBF1"/>
+                                <Setter Property="Foreground" Value="#0F766E"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+            </DataGrid>
+        </Border>
+    </Grid>
 </UserControl>
