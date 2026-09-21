@@ -3,111 +3,65 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
-        Estructura exacta de la imagen:
+        Imagen objetivo:
 
-              [ 2026 ▼ ]   [ SEPTIEMBRE ▼ ]   [ MOSTRAR ]
+          [ 2026 ▼ ]    [ SEPTIEMBRE ▼ ]    [ MOSTRAR ]
 
-                         ├──────── SEPTIEMBRE ────────┤
-                         │20/09/2026│21/09/2026│ ...  │
-        Nº DE LOTE│CANTIDAD_BOLSAS│STOOCK│ I │II│ I │II│...
+                         ├────────── SEPTIEMBRE ──────────┤
+                         │20/09/2026│21/09/2026│22/09/... │
+        Nº DE LOTE│CANTIDAD_BOLSAS│STOOCK│ I │ II │ I │ II │...
     -->
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Controles superiores (como la imagen) -->
+        <!-- Año / Mes / MOSTRAR -->
         <StackPanel Grid.Row="0" Orientation="Horizontal"
-                    HorizontalAlignment="Center" Margin="0,20,0,20">
-            <Border BorderBrush="Black" BorderThickness="1.5" Margin="0,0,24,0" Padding="4,2">
+                    HorizontalAlignment="Center" Margin="0,24,0,16">
+
+            <Border BorderBrush="Black" BorderThickness="1.5" Margin="0,0,28,0">
                 <ComboBox ItemsSource="{Binding Anios}"
                           SelectedItem="{Binding Anio}"
-                          Width="90" Height="32"
+                          Width="100" Height="34"
                           FontSize="14" BorderThickness="0"
-                          VerticalContentAlignment="Center"/>
+                          VerticalContentAlignment="Center"
+                          Padding="8,0"/>
             </Border>
-            <Border BorderBrush="Black" BorderThickness="1.5" Margin="0,0,24,0" Padding="4,2">
+
+            <Border BorderBrush="Black" BorderThickness="1.5" Margin="0,0,28,0">
                 <ComboBox ItemsSource="{Binding Meses}"
                           SelectedValue="{Binding Mes}"
                           SelectedValuePath="Numero"
                           DisplayMemberPath="Nombre"
-                          Width="130" Height="32"
+                          Width="140" Height="34"
                           FontSize="14" BorderThickness="0"
-                          VerticalContentAlignment="Center"/>
+                          VerticalContentAlignment="Center"
+                          Padding="8,0"/>
             </Border>
-            <Border BorderBrush="Black" BorderThickness="1.5" Padding="0">
+
+            <Border BorderBrush="Black" BorderThickness="1.5">
                 <Button Command="{Binding BuscarCommand}"
                         Content="MOSTRAR"
-                        Width="110" Height="36"
+                        Width="120" Height="36"
                         FontSize="13" FontWeight="SemiBold"
                         Background="White" BorderThickness="0"
                         Cursor="Hand"/>
             </Border>
         </StackPanel>
 
-        <!-- Planilla -->
-        <ScrollViewer Grid.Row="1" x:Name="ScrollPrincipal"
+        <TextBlock Grid.Row="1" Text="{Binding Mensaje}"
+                   FontSize="12" Foreground="#64748B"
+                   HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+        <!-- Planilla completa generada en code-behind -->
+        <ScrollViewer Grid.Row="2"
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto"
-                      Margin="16,0,16,16">
-
-            <Grid x:Name="Planilla" HorizontalAlignment="Left">
-                <Grid.RowDefinitions>
-                    <!-- Fila 0: mes (solo sobre fechas) -->
-                    <RowDefinition Height="28"/>
-                    <!-- Fila 1: fechas (solo sobre I/II) -->
-                    <RowDefinition Height="28"/>
-                    <!-- Fila 2: headers fijos + I/II + datos -->
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <!-- 3 columnas fijas -->
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="70"/>
-                    <!-- zona de días (se llena en code-behind) -->
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- === FILA 0: vacío sobre fijas + SEPTIEMBRE === -->
-                <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-                        BorderBrush="Black" BorderThickness="1,1,0,0" Background="White"/>
-
-                <Border Grid.Row="0" Grid.Column="3" x:Name="CeldaMes"
-                        BorderBrush="Black" BorderThickness="1,1,1,0" Background="White">
-                    <TextBlock Text="{Binding TituloMes}"
-                               FontWeight="Bold" FontSize="13"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-
-                <!-- === FILA 1: vacío sobre fijas + fechas === -->
-                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                        BorderBrush="Black" BorderThickness="1,1,0,0" Background="White"/>
-
-                <StackPanel Grid.Row="1" Grid.Column="3" x:Name="PanelFechas"
-                            Orientation="Horizontal"/>
-
-                <!-- === FILA 2: encabezados fijos (alineados con I/II) === -->
-                <Border Grid.Row="2" Grid.Column="0" BorderBrush="Black" BorderThickness="1"
-                        Background="White" VerticalAlignment="Top" Height="28">
-                    <TextBlock Text="Nº DE LOTE" FontWeight="SemiBold" FontSize="11"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="0,1,1,1"
-                        Background="White" VerticalAlignment="Top" Height="28">
-                    <TextBlock Text="CANTIDAD_BOLSAS" FontWeight="SemiBold" FontSize="10"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <Border Grid.Row="2" Grid.Column="2" BorderBrush="Black" BorderThickness="0,1,1,1"
-                        Background="White" VerticalAlignment="Top" Height="28">
-                    <TextBlock Text="STOOCK" FontWeight="SemiBold" FontSize="11"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-
-                <!-- Headers I/II + filas de datos se construyen en code-behind -->
-                <StackPanel Grid.Row="2" Grid.Column="3" x:Name="PanelDatos" Orientation="Vertical"/>
-            </Grid>
+                      Margin="20,0,20,20">
+            <StackPanel x:Name="PlanillaRoot" Orientation="Vertical" HorizontalAlignment="Left"/>
         </ScrollViewer>
     </Grid>
 </UserControl>
