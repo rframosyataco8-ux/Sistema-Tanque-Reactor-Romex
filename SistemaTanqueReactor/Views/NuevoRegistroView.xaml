@@ -3,10 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
+    <UserControl.Resources>
+        <!-- Fuerza texto OSCURO en todos los inputs de esta pantalla -->
+        <Style x:Key="InputOscuro" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="CaretBrush" Value="#0F172A"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+        <Style x:Key="ComboOscuro" TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+        <Style x:Key="DateOscuro" TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+    </UserControl.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
         <StackPanel MaxWidth="800" HorizontalAlignment="Left">
 
-            <!-- Encabezado -->
             <Border Background="#ECFDF5" CornerRadius="14" Padding="20,16" Margin="0,0,0,24"
                     BorderBrush="#A7F3D0" BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
@@ -16,10 +32,8 @@
                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Nuevo registro de producción" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="#065F46"/>
-                        <TextBlock Text="Se registra siempre la producción del día anterior"
-                                   FontSize="12" Foreground="#047857" Margin="0,2,0,0"/>
+                        <TextBlock Text="Nuevo registro de producción" FontSize="16" FontWeight="SemiBold" Foreground="#065F46"/>
+                        <TextBlock Text="Turno I y Turno II se guardan en celdas separadas" FontSize="12" Foreground="#047857" Margin="0,2,0,0"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -27,9 +41,7 @@
             <Border Style="{StaticResource ModernCard}">
                 <StackPanel>
 
-                    <!-- Lote -->
-                    <TextBlock Text="Nº DE LOTE" Style="{StaticResource FieldLabel}"
-                               FontSize="11" FontWeight="Bold"/>
+                    <TextBlock Text="Nº DE LOTE" Style="{StaticResource FieldLabel}" FontSize="11" FontWeight="Bold"/>
                     <Grid Margin="0,0,0,22">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -40,20 +52,18 @@
                                   ItemsSource="{Binding Lotes}"
                                   Text="{Binding NumeroLote, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
-                                  materialDesign:HintAssist.Hint="Selecciona o escribe un lote nuevo"
-                                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                  Height="48" FontSize="15"/>
+                                  materialDesign:HintAssist.Hint="Selecciona o escribe un lote"
+                                  Style="{StaticResource ComboOscuro}"
+                                  Height="48"/>
                         <Border Grid.Column="2" Background="#F0FDFA" BorderBrush="#99F6E4" BorderThickness="1"
                                 CornerRadius="10" Padding="14,10" VerticalAlignment="Center">
                             <StackPanel>
                                 <TextBlock Text="Lote estándar" FontSize="10" Foreground="#0F766E"/>
-                                <TextBlock Text="400 bolsas · 10.000 kg" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#0D9488"/>
+                                <TextBlock Text="400 bolsas · 10.000 kg" FontSize="12" FontWeight="SemiBold" Foreground="#0D9488"/>
                             </StackPanel>
                         </Border>
                     </Grid>
 
-                    <!-- Fecha y Turno -->
                     <Grid Margin="0,0,0,22">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -62,33 +72,26 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="FECHA DE PRODUCCIÓN" Style="{StaticResource FieldLabel}"
-                                       FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="FECHA DE PRODUCCIÓN" Style="{StaticResource FieldLabel}" FontSize="11" FontWeight="Bold"/>
                             <DatePicker SelectedDate="{Binding FechaProduccion}"
-                                        Style="{StaticResource MaterialDesignOutlinedDatePicker}"
-                                        Height="48" FontSize="15"/>
-                            <TextBlock Text="Por defecto: día anterior" FontSize="11"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0"/>
+                                        Style="{StaticResource DateOscuro}" Height="48"/>
+                            <TextBlock Text="Por defecto: día anterior" FontSize="11" Foreground="#64748B" Margin="0,6,0,0"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="TURNO" Style="{StaticResource FieldLabel}"
-                                       FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="TURNO" Style="{StaticResource FieldLabel}" FontSize="11" FontWeight="Bold"/>
                             <ComboBox ItemsSource="{Binding Turnos}"
                                       SelectedItem="{Binding Turno}"
-                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                      Height="48" FontSize="16" FontWeight="SemiBold"/>
+                                      Style="{StaticResource ComboOscuro}"
+                                      Height="48" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Grid>
 
-                    <!-- Separador -->
                     <Border Height="1" Background="#E2E8F0" Margin="0,0,0,22"/>
 
-                    <!-- Cantidad -->
-                    <TextBlock Text="CANTIDAD EN BOLSAS" Style="{StaticResource FieldLabel}"
-                               FontSize="11" FontWeight="Bold"/>
+                    <TextBlock Text="CANTIDAD EN BOLSAS" Style="{StaticResource FieldLabel}" FontSize="11" FontWeight="Bold"/>
                     <TextBlock Text="Puedes sumar: 30+30+30+30  →  Enter o Calcular"
-                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+                               FontSize="12" Foreground="#64748B" Margin="0,0,0,10"/>
 
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
@@ -97,23 +100,18 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBox x:Name="TxtCantidad"
-                                 Grid.Column="0"
+                        <TextBox x:Name="TxtCantidad" Grid.Column="0"
                                  Text="{Binding CantidadTexto, UpdateSourceTrigger=PropertyChanged}"
                                  materialDesign:HintAssist.Hint="30+30+30+30"
-                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                 FontSize="22" FontWeight="Bold"
-                                 Height="52"
+                                 Style="{StaticResource InputOscuro}"
+                                 FontSize="22" FontWeight="Bold" Height="52"
                                  PreviewKeyDown="TxtCantidad_PreviewKeyDown"/>
 
-                        <Button Grid.Column="2"
-                                Style="{StaticResource PrimaryButton}"
+                        <Button Grid.Column="2" Style="{StaticResource PrimaryButton}"
                                 Command="{Binding CalcularCantidadCommand}"
-                                Content="Calcular"
-                                Width="130" Height="52" FontSize="15"/>
+                                Content="Calcular" Width="130" Height="52" FontSize="15"/>
                     </Grid>
 
-                    <!-- Resultado -->
                     <Border Background="#ECFDF5" BorderBrush="#34D399" BorderThickness="2"
                             CornerRadius="14" Padding="20,16" Margin="0,0,0,22"
                             Visibility="{Binding MostrarResultado, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -123,31 +121,21 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
                             <Border Background="#10B981" CornerRadius="12" Width="52" Height="52">
                                 <materialDesign:PackIcon Kind="CheckBold" Width="26" Height="26"
-                                                         Foreground="White"
-                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                         Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-
                             <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL CALCULADO" FontSize="11" FontWeight="Bold"
-                                           Foreground="#059669"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                    <TextBlock FontSize="28" FontWeight="Bold" Foreground="#064E3B">
-                                        <Run Text="{Binding CantidadCalculada, Mode=OneWay}"/>
-                                        <Run Text=" bolsas" FontSize="16" FontWeight="SemiBold"/>
-                                    </TextBlock>
-                                </StackPanel>
+                                <TextBlock Text="TOTAL CALCULADO" FontSize="11" FontWeight="Bold" Foreground="#059669"/>
+                                <TextBlock FontSize="28" FontWeight="Bold" Foreground="#064E3B" Margin="0,4,0,0">
+                                    <Run Text="{Binding CantidadCalculada, Mode=OneWay}"/>
+                                    <Run Text=" bolsas" FontSize="16" FontWeight="SemiBold"/>
+                                </TextBlock>
                             </StackPanel>
-
-                            <Border Grid.Column="2" Background="#D1FAE5" CornerRadius="10" Padding="16,10"
-                                    VerticalAlignment="Center">
+                            <Border Grid.Column="2" Background="#D1FAE5" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="PESO" FontSize="10" FontWeight="Bold"
-                                               Foreground="#047857" HorizontalAlignment="Center"/>
-                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="#065F46"
-                                               HorizontalAlignment="Center">
+                                    <TextBlock Text="PESO" FontSize="10" FontWeight="Bold" Foreground="#047857" HorizontalAlignment="Center"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="#065F46" HorizontalAlignment="Center">
                                         <Run Text="{Binding CantidadKg, Mode=OneWay, StringFormat={}{0:N0}}"/>
                                         <Run Text=" kg" FontSize="13"/>
                                     </TextBlock>
@@ -156,28 +144,21 @@
                         </Grid>
                     </Border>
 
-                    <!-- Observaciones -->
-                    <TextBlock Text="OBSERVACIONES" Style="{StaticResource FieldLabel}"
-                               FontSize="11" FontWeight="Bold"/>
+                    <TextBlock Text="OBSERVACIONES" Style="{StaticResource FieldLabel}" FontSize="11" FontWeight="Bold"/>
                     <TextBox Text="{Binding Observaciones}"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Style="{StaticResource InputOscuro}"
                              materialDesign:HintAssist.Hint="Opcional"
                              AcceptsReturn="True" Height="70" TextWrapping="Wrap"
                              Margin="0,0,0,28"/>
 
-                    <!-- Acciones -->
                     <Grid>
                         <TextBlock Text="{Binding Mensaje}" VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="13"
-                                   TextWrapping="Wrap" MaxWidth="400"/>
+                                   Foreground="#475569" FontSize="13" TextWrapping="Wrap" MaxWidth="400"/>
                         <Button Style="{StaticResource PrimaryButton}"
                                 Command="{Binding GuardarCommand}"
-                                HorizontalAlignment="Right"
-                                Width="240" Height="50"
-                                FontSize="15">
+                                HorizontalAlignment="Right" Width="240" Height="50" FontSize="15">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ContentSave" Width="20" Height="20"
-                                                         VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="ContentSave" Width="20" Height="20" VerticalAlignment="Center"/>
                                 <TextBlock Text="Guardar Registro" Margin="10,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
@@ -185,7 +166,6 @@
 
                 </StackPanel>
             </Border>
-
         </StackPanel>
     </ScrollViewer>
 </UserControl>

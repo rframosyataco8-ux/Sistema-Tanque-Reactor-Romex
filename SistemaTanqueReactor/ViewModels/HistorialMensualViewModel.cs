@@ -24,7 +24,6 @@ public partial class HistorialMensualViewModel : ObservableObject
     public ObservableCollection<MesItem> Meses { get; } = new();
     public ObservableCollection<string> FechasEncabezado { get; } = new();
 
-    // Nombres exactos de la imagen
     public const string ColLote = "Nº DE LOTE";
     public const string ColBolsas = "CANTIDAD_BOLSAS";
     public const string ColStok = "STOOCK";
@@ -98,8 +97,16 @@ public partial class HistorialMensualViewModel : ObservableObject
                     for (int d = 1; d <= DiasEnMes; d++)
                     {
                         var fecha = new DateTime(Anio, Mes, d);
-                        int tI = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I").Sum(r => r.CantidadBolsas);
-                        int tII = regsLote.Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II").Sum(r => r.CantidadBolsas);
+
+                        // Turno ya viene con Trim() del servicio — separar I y II correctamente
+                        int tI = regsLote
+                            .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I")
+                            .Sum(r => r.CantidadBolsas);
+                        int tII = regsLote
+                            .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II")
+                            .Sum(r => r.CantidadBolsas);
+
+                        // Cada turno en SU celda — nunca sumar I+II juntos
                         row[ColDia(d, "I")] = tI > 0 ? tI.ToString() : "";
                         row[ColDia(d, "II")] = tII > 0 ? tII.ToString() : "";
                     }
