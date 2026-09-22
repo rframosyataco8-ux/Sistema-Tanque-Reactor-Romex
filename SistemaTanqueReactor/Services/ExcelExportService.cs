@@ -8,8 +8,8 @@ namespace SistemaTanqueReactor.Services;
 public static class ExcelExportService
 {
     /// <summary>
-    /// Exporta la planilla mensual (Registro) con estructura:
-    /// mes | fechas | Nº LOTE | CANTIDAD_BOLSAS | STOOCK | I | II por día
+    /// Planilla mensual igual que en pantalla:
+    /// mes | fechas | Nº DE LOTE | CANTIDAD_BOLSAS | STOCK | I | II por día
     /// </summary>
     public static bool ExportarPlanillaMensual(DataTable tabla, string tituloMes, int anio, int mes, int diasEnMes)
     {
@@ -27,20 +27,20 @@ public static class ExcelExportService
             return false;
 
         using var wb = new XLWorkbook();
-        var ws = wb.Worksheets.Add(tituloMes);
+        var ws = wb.Worksheets.Add(tituloMes.Length > 31 ? tituloMes[..31] : tituloMes);
 
-        // Fila 1: mes centrado sobre columnas de días
-        int colFijas = 3;
+        const int colFijas = 3;
         int colInicioDias = 4;
         int colFin = colFijas + diasEnMes * 2;
 
+        // Fila 1: mes
         ws.Range(1, colInicioDias, 1, colFin).Merge();
         ws.Cell(1, colInicioDias).Value = tituloMes;
         ws.Cell(1, colInicioDias).Style.Font.Bold = true;
         ws.Cell(1, colInicioDias).Style.Font.FontSize = 14;
         ws.Cell(1, colInicioDias).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-        // Fila 2: fechas (cada una abarca 2 columnas I/II)
+        // Fila 2: fechas
         for (int d = 1; d <= diasEnMes; d++)
         {
             int c = colFijas + (d - 1) * 2 + 1;
@@ -51,10 +51,10 @@ public static class ExcelExportService
             ws.Cell(2, c).Style.Font.FontSize = 10;
         }
 
-        // Fila 3: headers fijos + I | II
+        // Fila 3: headers
         ws.Cell(3, 1).Value = "Nº DE LOTE";
         ws.Cell(3, 2).Value = "CANTIDAD_BOLSAS";
-        ws.Cell(3, 3).Value = "STOOCK";
+        ws.Cell(3, 3).Value = "STOCK";
         for (int d = 1; d <= diasEnMes; d++)
         {
             int c = colFijas + (d - 1) * 2 + 1;
@@ -73,7 +73,10 @@ public static class ExcelExportService
         {
             ws.Cell(row, 1).Value = dr["Nº DE LOTE"]?.ToString() ?? "";
             ws.Cell(row, 2).Value = ToInt(dr["CANTIDAD_BOLSAS"]);
-            ws.Cell(row, 3).Value = ToInt(dr["STOOCK"]);
+            // Compatibilidad con datos antiguos que usaban STOOCK
+            object? stockVal = tabla.Columns.Contains("STOCK") ? dr["STOCK"]
+                : tabla.Columns.Contains("STOOCK") ? dr["STOOCK"] : 0;
+            ws.Cell(row, 3).Value = ToInt(stockVal);
 
             for (int d = 1; d <= diasEnMes; d++)
             {
@@ -90,8 +93,7 @@ public static class ExcelExportService
             row++;
         }
 
-        // Bordes y anchos
-        var used = ws.Range(1, 1, row - 1, colFin);
+        var used = ws.Range(1, 1, Math.Max(3, row - 1), colFin);
         used.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
         used.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
         used.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -109,7 +111,6 @@ public static class ExcelExportService
         return true;
     }
 
-    /// <summary>Exporta lista de registros de producción (Historial).</summary>
     public static bool ExportarHistorial(IEnumerable<RegistroProduccion> registros)
     {
         var list = registros?.ToList() ?? new List<RegistroProduccion>();
