@@ -8,8 +8,8 @@ namespace SistemaTanqueReactor.Views;
 public partial class MainWindow : Window
 {
     private bool _sidebarOpen = true;
-    private const double SidebarOpenW = 260;
-    private const double SidebarClosedW = 72;
+    private const double SidebarOpenW = 250;
+    private const double SidebarClosedW = 68;
 
     public MainWindow()
     {
@@ -20,9 +20,8 @@ public partial class MainWindow : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Animación de entrada: fade out del splash
-        await System.Threading.Tasks.Task.Delay(900);
-        var anim = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(450))
+        await System.Threading.Tasks.Task.Delay(700);
+        var anim = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(400))
         {
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
         };
@@ -39,12 +38,12 @@ public partial class MainWindow : Window
         {
             From = ColSidebar.Width,
             To = new GridLength(target),
-            Duration = TimeSpan.FromMilliseconds(220),
+            Duration = TimeSpan.FromMilliseconds(200),
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
         };
         ColSidebar.BeginAnimation(ColumnDefinition.WidthProperty, anim);
 
-        // Mostrar/ocultar textos
+        // Solo textos del logo y labels de sección; los botones mantienen iconos visibles
         var vis = _sidebarOpen ? Visibility.Visible : Visibility.Collapsed;
         TxtLogoTitle.Visibility = vis;
         TxtLogoSub.Visibility = vis;
@@ -52,6 +51,8 @@ public partial class MainWindow : Window
         LblOtros.Visibility = vis;
         SepConfig.Visibility = vis;
         FooterBox.Visibility = vis;
+
+        // Textos de nav: ocultar al colapsar (quedan solo iconos)
         TxtDash.Visibility = vis;
         TxtNuevo.Visibility = vis;
         TxtReg.Visibility = vis;
@@ -67,7 +68,6 @@ public partial class MainWindow : Window
     private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
 }
 
-/// <summary>Animación de ancho de columna del Grid.</summary>
 public class GridLengthAnimation : AnimationTimeline
 {
     public override Type TargetPropertyType => typeof(GridLength);
