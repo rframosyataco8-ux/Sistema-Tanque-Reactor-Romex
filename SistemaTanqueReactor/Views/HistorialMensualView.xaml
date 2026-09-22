@@ -31,8 +31,25 @@
         <TextBlock Grid.Row="1" Text="{Binding Mensaje}" FontSize="12" FontWeight="SemiBold"
                    Foreground="#8B92A5" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="12,0,12,12">
-            <StackPanel x:Name="PlanillaRoot" Orientation="Vertical" HorizontalAlignment="Left"/>
-        </ScrollViewer>
+        <!-- Columnas fijas (izq) + días con scroll (der) -->
+        <Grid Grid.Row="2" Margin="12,0,12,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <ScrollViewer x:Name="ScrollFijas" Grid.Column="0"
+                          VerticalScrollBarVisibility="Hidden"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="PlanillaFijas" Orientation="Vertical"/>
+            </ScrollViewer>
+
+            <ScrollViewer x:Name="ScrollDias" Grid.Column="1"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          ScrollChanged="ScrollDias_ScrollChanged">
+                <StackPanel x:Name="PlanillaDias" Orientation="Vertical" HorizontalAlignment="Left"/>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>
