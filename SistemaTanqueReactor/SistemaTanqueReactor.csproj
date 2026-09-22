@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>SistemaTanqueReactor</AssemblyName>
     <RootNamespace>SistemaTanqueReactor</RootNamespace>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <Company>Tanque Reactor</Company>
     <Product>Sistema Tanque Reactor</Product>
   </PropertyGroup>
@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="FontAwesome.Sharp" Version="6.6.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
     <PackageReference Include="MaterialDesignColors" Version="3.1.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
