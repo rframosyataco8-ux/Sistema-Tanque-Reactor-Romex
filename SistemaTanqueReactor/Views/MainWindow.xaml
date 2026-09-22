@@ -52,7 +52,7 @@
 
                     <StackPanel DockPanel.Dock="Top" Margin="8,0" x:Name="NavPanel">
                         <TextBlock x:Name="LblMenu" Text="MENÚ" FontSize="10" FontWeight="Bold"
-                                   Foreground="#475569" Margin="16,0,0,6" LetterSpacing="1"/>
+                                   Foreground="#475569" Margin="16,0,0,6"/>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="Dashboard">
                             <StackPanel Orientation="Horizontal">
@@ -85,7 +85,7 @@
                         <Border Height="1" Background="#1E293B" Margin="12,14" x:Name="SepConfig"/>
 
                         <TextBlock x:Name="LblOtros" Text="OTROS" FontSize="10" FontWeight="Bold"
-                                   Foreground="#475569" Margin="16,0,0,6" LetterSpacing="1"/>
+                                   Foreground="#475569" Margin="16,0,0,6"/>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="Otros">
                             <StackPanel Orientation="Horizontal">
