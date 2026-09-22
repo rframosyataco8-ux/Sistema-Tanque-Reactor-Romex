@@ -29,6 +29,19 @@ public class ProduccionService
         return lotes;
     }
 
+    /// <summary>Bolsas disponibles del lote. Si no existe, retorna null.</summary>
+    public async Task<int?> ObtenerStockDisponibleAsync(string numeroLote)
+    {
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+        using var cmd = new SqlCommand(
+            "SELECT CantidadBolsasDisponible FROM LotesTorta WHERE NumeroLote = @l AND Activo = 1", conn);
+        cmd.Parameters.AddWithValue("@l", numeroLote.Trim());
+        var o = await cmd.ExecuteScalarAsync();
+        if (o == null || o == DBNull.Value) return null;
+        return Convert.ToInt32(o);
+    }
+
     public async Task AsegurarLoteAsync(string numeroLote)
     {
         using var conn = new SqlConnection(_connectionString);
@@ -77,6 +90,23 @@ public class ProduccionService
         using var tran = conn.BeginTransaction();
         try
         {
+            // Validar stock dentro de la transacción (evita race conditions)
+            int disponible;
+            using (var stockCmd = new SqlCommand(
+                "SELECT CantidadBolsasDisponible FROM LotesTorta WITH (UPDLOCK) WHERE NumeroLote = @lote", conn, tran))
+            {
+                stockCmd.Parameters.AddWithValue("@lote", registro.NumeroLote.Trim());
+                var o = await stockCmd.ExecuteScalarAsync();
+                disponible = o == null || o == DBNull.Value ? 0 : Convert.ToInt32(o);
+            }
+
+            if (registro.CantidadBolsas > disponible)
+            {
+                throw new InvalidOperationException(
+                    $"Stock insuficiente en lote {registro.NumeroLote}.\n" +
+                    $"Disponible: {disponible} bolsas · Intentas usar: {registro.CantidadBolsas} bolsas.");
+            }
+
             using var cmd = new SqlCommand(
                 @"INSERT INTO RegistrosProduccion 
                   (NumeroLote, FechaProduccion, Turno, CantidadBolsas, ExpresionCantidad, UsuarioRegistro, Observaciones)
@@ -123,6 +153,116 @@ public class ProduccionService
         }
     }
 
+    /// <summary>
+    /// Edición inline: establece el total de bolsas de un lote/fecha/turno.
+    /// Ajusta stock por la diferencia (nueva - anterior).
+    /// </summary>
+    public async Task EstablecerCantidadCeldaAsync(string numeroLote, DateTime fecha, string turno, int nuevaCantidad)
+    {
+        if (nuevaCantidad < 0)
+            throw new ArgumentException("La cantidad no puede ser negativa.");
+
+        turno = (turno ?? "I").Trim().ToUpperInvariant();
+        if (turno != "I" && turno != "II") turno = "I";
+
+        await AsegurarLoteAsync(numeroLote);
+
+        using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+        using var tran = conn.BeginTransaction();
+
+        try
+        {
+            // Total actual en esa celda
+            int actual = 0;
+            using (var sumCmd = new SqlCommand(
+                @"SELECT ISNULL(SUM(CantidadBolsas),0) FROM RegistrosProduccion
+                  WHERE NumeroLote = @l AND FechaProduccion = @f AND LTRIM(RTRIM(Turno)) = @t", conn, tran))
+            {
+                sumCmd.Parameters.AddWithValue("@l", numeroLote.Trim());
+                sumCmd.Parameters.AddWithValue("@f", fecha.Date);
+                sumCmd.Parameters.AddWithValue("@t", turno);
+                actual = Convert.ToInt32(await sumCmd.ExecuteScalarAsync() ?? 0);
+            }
+
+            int delta = nuevaCantidad - actual; // positivo = consumir más stock
+
+            if (delta > 0)
+            {
+                int disponible;
+                using (var stockCmd = new SqlCommand(
+                    "SELECT CantidadBolsasDisponible FROM LotesTorta WITH (UPDLOCK) WHERE NumeroLote = @l", conn, tran))
+                {
+                    stockCmd.Parameters.AddWithValue("@l", numeroLote.Trim());
+                    disponible = Convert.ToInt32(await stockCmd.ExecuteScalarAsync() ?? 0);
+                }
+                if (delta > disponible)
+                    throw new InvalidOperationException(
+                        $"Stock insuficiente. Disponible: {disponible} · Necesitas {delta} bolsas más.");
+            }
+
+            // Borrar registros previos de esa celda
+            using (var del = new SqlCommand(
+                @"DELETE FROM RegistrosProduccion
+                  WHERE NumeroLote = @l AND FechaProduccion = @f AND LTRIM(RTRIM(Turno)) = @t", conn, tran))
+            {
+                del.Parameters.AddWithValue("@l", numeroLote.Trim());
+                del.Parameters.AddWithValue("@f", fecha.Date);
+                del.Parameters.AddWithValue("@t", turno);
+                await del.ExecuteNonQueryAsync();
+            }
+
+            if (nuevaCantidad > 0)
+            {
+                using var ins = new SqlCommand(
+                    @"INSERT INTO RegistrosProduccion
+                      (NumeroLote, FechaProduccion, Turno, CantidadBolsas, ExpresionCantidad, UsuarioRegistro)
+                      VALUES (@l, @f, @t, @c, @e, @u)", conn, tran);
+                ins.Parameters.AddWithValue("@l", numeroLote.Trim());
+                ins.Parameters.AddWithValue("@f", fecha.Date);
+                ins.Parameters.AddWithValue("@t", turno);
+                ins.Parameters.AddWithValue("@c", nuevaCantidad);
+                ins.Parameters.AddWithValue("@e", nuevaCantidad.ToString());
+                ins.Parameters.AddWithValue("@u", Environment.UserName);
+                await ins.ExecuteNonQueryAsync();
+            }
+
+            // Ajustar stock por delta
+            if (delta != 0)
+            {
+                try
+                {
+                    using var upd = new SqlCommand(
+                        @"UPDATE LotesTorta
+                          SET CantidadBolsasDisponible = CantidadBolsasDisponible - @d,
+                              ProduccionBolsas = ProduccionBolsas + @d
+                          WHERE NumeroLote = @l", conn, tran);
+                    upd.Parameters.AddWithValue("@d", delta);
+                    upd.Parameters.AddWithValue("@l", numeroLote.Trim());
+                    await upd.ExecuteNonQueryAsync();
+                }
+                catch
+                {
+                    using var upd = new SqlCommand(
+                        @"UPDATE LotesTorta
+                          SET CantidadBolsasDisponible = CantidadBolsasDisponible - @d,
+                              DespachoBolsas = DespachoBolsas + @d
+                          WHERE NumeroLote = @l", conn, tran);
+                    upd.Parameters.AddWithValue("@d", delta);
+                    upd.Parameters.AddWithValue("@l", numeroLote.Trim());
+                    await upd.ExecuteNonQueryAsync();
+                }
+            }
+
+            tran.Commit();
+        }
+        catch
+        {
+            tran.Rollback();
+            throw;
+        }
+    }
+
     public async Task<List<RegistroProduccion>> ObtenerRegistrosDelMesAsync(int anio, int mes)
     {
         var lista = new List<RegistroProduccion>();
@@ -140,9 +280,7 @@ public class ProduccionService
 
         using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
-        {
             lista.Add(LeerRegistro(reader));
-        }
         return lista;
     }
 
@@ -183,7 +321,6 @@ public class ProduccionService
         using var tran = conn.BeginTransaction();
         try
         {
-            // Leer el registro para restaurar stock
             string? numeroLote = null;
             int cantidad = 0;
             using (var sel = new SqlCommand(
@@ -208,7 +345,6 @@ public class ProduccionService
                 await del.ExecuteNonQueryAsync();
             }
 
-            // Devolver stock al lote
             try
             {
                 using var upd = new SqlCommand(
