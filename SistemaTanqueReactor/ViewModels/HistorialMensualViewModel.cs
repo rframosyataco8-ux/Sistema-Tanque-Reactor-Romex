@@ -26,7 +26,7 @@ public partial class HistorialMensualViewModel : ObservableObject
 
     public const string ColLote = "Nº DE LOTE";
     public const string ColBolsas = "CANTIDAD_BOLSAS";
-    public const string ColStok = "STOOCK";
+    public const string ColStock = "STOCK";
 
     public HistorialMensualViewModel(ProduccionService service)
     {
@@ -66,7 +66,7 @@ public partial class HistorialMensualViewModel : ObservableObject
             var dt = new DataTable();
             dt.Columns.Add(ColLote, typeof(string));
             dt.Columns.Add(ColBolsas, typeof(int));
-            dt.Columns.Add(ColStok, typeof(int));
+            dt.Columns.Add(ColStock, typeof(int));
 
             for (int d = 1; d <= DiasEnMes; d++)
             {
@@ -90,7 +90,8 @@ public partial class HistorialMensualViewModel : ObservableObject
 
                 row[ColLote] = numeroLote;
                 row[ColBolsas] = loteInfo?.CantidadBolsasInicial ?? 400;
-                row[ColStok] = loteInfo?.CantidadBolsasDisponible ?? 400;
+                // STOCK = bolsas disponibles restantes
+                row[ColStock] = loteInfo?.CantidadBolsasDisponible ?? 400;
 
                 if (agrupado.TryGetValue(numeroLote, out var regsLote))
                 {
