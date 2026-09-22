@@ -7,6 +7,7 @@
         MinHeight="700" MinWidth="1024"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
+        ResizeMode="CanResize"
         AllowsTransparency="False"
         Background="#F8FAFC"
         FontFamily="Segoe UI"
@@ -15,12 +16,12 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         RenderOptions.BitmapScalingMode="HighQuality"
-        RenderOptions.ClearTypeHint="Enabled">
+        RenderOptions.ClearTypeHint="Enabled"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
-    <!-- CaptionHeight=56 permite arrastrar la barra superior nativamente -->
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="56"
-                      ResizeBorderThickness="6"
+                      ResizeBorderThickness="8"
                       GlassFrameThickness="0"
                       CornerRadius="0"
                       UseAeroCaptionButtons="False"/>
@@ -122,7 +123,6 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- BARRA SUPERIOR: arrastrable -->
                 <Border x:Name="TitleBar" Grid.Row="0" Background="White"
                         BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
                         MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
@@ -134,10 +134,9 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- WindowChrome.IsHitTestVisibleInChrome=True para que el botón funcione sobre la zona de caption -->
                         <Button Grid.Column="0" Click="BtnMenu_Click" Cursor="Hand"
                                 Width="42" Height="42" Background="Transparent" BorderThickness="0"
-                                ToolTip="Menú"
+                                ToolTip="Menú (Ctrl+M)"
                                 WindowChrome.IsHitTestVisibleInChrome="True">
                             <materialDesign:PackIcon Kind="Menu" Width="22" Height="22" Foreground="#0F172A"/>
                         </Button>
@@ -162,18 +161,47 @@
                                     WindowChrome.IsHitTestVisibleInChrome="True">
                             <Button Width="40" Height="32" Click="BtnMin_Click" Background="Transparent"
                                     BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="14" Content="─"
+                                    ToolTip="Minimizar"
                                     WindowChrome.IsHitTestVisibleInChrome="True"/>
                             <Button Width="40" Height="32" Click="BtnMax_Click" Background="Transparent"
                                     BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="11" Content="□"
+                                    ToolTip="Maximizar (F11)"
                                     WindowChrome.IsHitTestVisibleInChrome="True"/>
                             <Button Width="40" Height="32" Click="BtnClose_Click" Background="Transparent"
                                     BorderThickness="0" Cursor="Hand" Foreground="#EF4444" FontSize="13" Content="✕"
+                                    ToolTip="Cerrar (Alt+F4)"
                                     WindowChrome.IsHitTestVisibleInChrome="True"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <ContentControl Grid.Row="1" Content="{Binding CurrentView}" Margin="24,20,24,24"/>
+            </Grid>
+
+            <!-- Zonas de redimensionamiento manual (esquinas y bordes) -->
+            <Grid Grid.ColumnSpan="2" IsHitTestVisible="True" Panel.ZIndex="50">
+                <!-- Bordes -->
+                <Border Height="6" VerticalAlignment="Top" Background="Transparent" Cursor="SizeNS"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="N"/>
+                <Border Height="6" VerticalAlignment="Bottom" Background="Transparent" Cursor="SizeNS"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="S"/>
+                <Border Width="6" HorizontalAlignment="Left" Background="Transparent" Cursor="SizeWE"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="W"/>
+                <Border Width="6" HorizontalAlignment="Right" Background="Transparent" Cursor="SizeWE"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="E"/>
+                <!-- Esquinas -->
+                <Border Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Background="Transparent" Cursor="SizeNWSE"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="NW"/>
+                <Border Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Background="Transparent" Cursor="SizeNESW"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="NE"/>
+                <Border Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                        Background="Transparent" Cursor="SizeNESW"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SW"/>
+                <Border Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Background="Transparent" Cursor="SizeNWSE"
+                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SE"/>
             </Grid>
 
             <!-- Splash -->
