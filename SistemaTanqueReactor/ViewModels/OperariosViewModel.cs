@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using SistemaTanqueReactor.Models;
+using SistemaTanqueReactor.Services;
 using System.Windows;
 
 namespace SistemaTanqueReactor.ViewModels;
@@ -58,63 +58,26 @@ public partial class OperariosViewModel : ObservableObject
         }
     }
 
-    private bool Validar()
+    private InputValidator.Result Validar()
     {
-        ErrorNombres = "";
-        ErrorDni = "";
-        bool ok = true;
+        var r = new InputValidator.Result();
+        InputValidator.ValidateNombrePersona(Nombres, r, "Nombres", required: true);
+        InputValidator.ValidateNombrePersona(Apellidos, r, "Apellidos", required: false);
+        InputValidator.ValidateDni(Dni, r, "Dni", required: false);
 
-        var nom = (Nombres ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(nom))
-        {
-            ErrorNombres = "El nombre es obligatorio.";
-            ok = false;
-        }
-        else if (nom.Length < 2)
-        {
-            ErrorNombres = "Mínimo 2 caracteres.";
-            ok = false;
-        }
-        else if (nom.Length > 100)
-        {
-            ErrorNombres = "Máximo 100 caracteres.";
-            ok = false;
-        }
-        else if (!Regex.IsMatch(nom, @"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s.'\-]+$"))
-        {
-            ErrorNombres = "Solo letras y espacios.";
-            ok = false;
-        }
-
-        var dni = (Dni ?? "").Trim();
-        if (!string.IsNullOrEmpty(dni))
-        {
-            if (!Regex.IsMatch(dni, @"^\d{8}$"))
-            {
-                ErrorDni = "DNI debe tener 8 dígitos.";
-                ok = false;
-            }
-        }
-
-        var ape = (Apellidos ?? "").Trim();
-        if (!string.IsNullOrEmpty(ape) && ape.Length > 100)
-        {
-            ErrorNombres = (ErrorNombres + " Apellidos máx. 100.").Trim();
-            ok = false;
-        }
-
-        return ok;
+        ErrorNombres = r["Nombres"] ?? r["Apellidos"] ?? "";
+        ErrorDni = r["Dni"] ?? "";
+        return r;
     }
 
     [RelayCommand]
     private async Task Guardar()
     {
-        if (!Validar())
+        var result = Validar();
+        if (!result.IsValid)
         {
-            var msgs = new List<string>();
-            if (!string.IsNullOrEmpty(ErrorNombres)) msgs.Add(ErrorNombres);
-            if (!string.IsNullOrEmpty(ErrorDni)) msgs.Add(ErrorDni);
-            MessageBox.Show(string.Join("\n", msgs), "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(result.Summary, Loc.T("ui.validation"),
+                MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -131,8 +94,9 @@ public partial class OperariosViewModel : ObservableObject
                 check.Parameters.AddWithValue("@d", Dni.Trim());
                 if ((int)(await check.ExecuteScalarAsync() ?? 0) > 0)
                 {
-                    ErrorDni = "Ya existe un operario con ese DNI.";
-                    MessageBox.Show(ErrorDni, "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ErrorDni = Loc.T("val.dni.exists");
+                    MessageBox.Show(ErrorDni, Loc.T("ui.validation"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
@@ -144,7 +108,8 @@ public partial class OperariosViewModel : ObservableObject
             cmd.Parameters.AddWithValue("@d", string.IsNullOrWhiteSpace(Dni) ? DBNull.Value : Dni.Trim());
             await cmd.ExecuteNonQueryAsync();
 
-            MessageBox.Show($"Operario {Nombres} registrado.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"Operario {Nombres} registrado.", Loc.T("ui.success"),
+                MessageBoxButton.OK, MessageBoxImage.Information);
             Nombres = "";
             Apellidos = "";
             Dni = "";
@@ -153,7 +118,7 @@ public partial class OperariosViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.Message, Loc.T("ui.error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally { IsSaving = false; }
     }

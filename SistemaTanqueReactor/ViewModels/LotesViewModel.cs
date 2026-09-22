@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using SistemaTanqueReactor.Models;
+using SistemaTanqueReactor.Services;
 using System.Windows;
 
 namespace SistemaTanqueReactor.ViewModels;
@@ -68,73 +68,27 @@ public partial class LotesViewModel : ObservableObject
         }
     }
 
-    private bool Validar()
+    private InputValidator.Result Validar()
     {
-        ErrorLote = "";
-        ErrorBolsas = "";
-        ErrorFecha = "";
-        bool ok = true;
+        var r = new InputValidator.Result();
+        InputValidator.ValidateLoteNumero(NumeroLote, r, "Lote");
+        InputValidator.ValidateBolsas(CantidadBolsas, r, "Bolsas", 10000);
+        InputValidator.ValidateFecha(FechaIngreso, r, "Fecha", allowNull: true, maxYearsBack: 5, allowFuture: false);
 
-        var lote = (NumeroLote ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(lote))
-        {
-            ErrorLote = "El Nº de lote es obligatorio.";
-            ok = false;
-        }
-        else if (lote.Length < 3)
-        {
-            ErrorLote = "Mínimo 3 caracteres.";
-            ok = false;
-        }
-        else if (lote.Length > 50)
-        {
-            ErrorLote = "Máximo 50 caracteres.";
-            ok = false;
-        }
-        else if (!Regex.IsMatch(lote, @"^[A-Za-z0-9._\-]+$"))
-        {
-            ErrorLote = "Solo letras, números, punto, guion o guion bajo.";
-            ok = false;
-        }
-
-        if (CantidadBolsas <= 0)
-        {
-            ErrorBolsas = "Debe ser mayor a 0.";
-            ok = false;
-        }
-        else if (CantidadBolsas > 10000)
-        {
-            ErrorBolsas = "Máximo 10.000 bolsas.";
-            ok = false;
-        }
-
-        if (FechaIngreso.HasValue)
-        {
-            if (FechaIngreso.Value.Date > DateTime.Today)
-            {
-                ErrorFecha = "No puede ser futura.";
-                ok = false;
-            }
-            else if (FechaIngreso.Value.Date < DateTime.Today.AddYears(-5))
-            {
-                ErrorFecha = "Fecha demasiado antigua.";
-                ok = false;
-            }
-        }
-
-        return ok;
+        ErrorLote = r["Lote"] ?? "";
+        ErrorBolsas = r["Bolsas"] ?? "";
+        ErrorFecha = r["Fecha"] ?? "";
+        return r;
     }
 
     [RelayCommand]
     private async Task Guardar()
     {
-        if (!Validar())
+        var result = Validar();
+        if (!result.IsValid)
         {
-            var msgs = new List<string>();
-            if (!string.IsNullOrEmpty(ErrorLote)) msgs.Add(ErrorLote);
-            if (!string.IsNullOrEmpty(ErrorBolsas)) msgs.Add(ErrorBolsas);
-            if (!string.IsNullOrEmpty(ErrorFecha)) msgs.Add(ErrorFecha);
-            MessageBox.Show(string.Join("\n", msgs), "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(result.Summary, Loc.T("ui.validation"),
+                MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -148,8 +102,9 @@ public partial class LotesViewModel : ObservableObject
             check.Parameters.AddWithValue("@l", NumeroLote.Trim());
             if ((int)(await check.ExecuteScalarAsync() ?? 0) > 0)
             {
-                ErrorLote = "Ese lote ya existe.";
-                MessageBox.Show("Ese lote ya existe.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ErrorLote = Loc.T("val.lote.exists");
+                MessageBox.Show(ErrorLote, Loc.T("ui.validation"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -163,7 +118,7 @@ public partial class LotesViewModel : ObservableObject
             await cmd.ExecuteNonQueryAsync();
 
             MessageBox.Show($"Lote {NumeroLote} creado ({CantidadBolsas} bolsas = {CantidadBolsas * 25:N0} kg).",
-                "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                Loc.T("ui.success"), MessageBoxButton.OK, MessageBoxImage.Information);
             NumeroLote = "";
             CantidadBolsas = 400;
             Observaciones = "";
@@ -172,7 +127,7 @@ public partial class LotesViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.Message, Loc.T("ui.error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally { IsSaving = false; }
     }
@@ -194,7 +149,7 @@ public partial class LotesViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.Message, Loc.T("ui.error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
