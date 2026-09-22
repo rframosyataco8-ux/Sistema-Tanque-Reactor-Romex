@@ -4,82 +4,115 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              Background="#F1F5F9">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="0,0,8,0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+        <StackPanel>
 
-            <Grid Margin="0,0,0,22">
+            <!-- Encabezado -->
+            <Grid Margin="0,0,0,28">
                 <StackPanel>
-                    <TextBlock Text="Dashboard" FontSize="24" FontWeight="Bold" Foreground="#0F172A"/>
-                    <TextBlock Text="Producción del día · Tanque Reactor" FontSize="13" Foreground="#64748B" Margin="0,4,0,0"/>
+                    <TextBlock Text="Dashboard" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
+                    <TextBlock Text="Resumen de producción · día actual" FontSize="13" Foreground="#64748B" Margin="0,6,0,0"/>
                 </StackPanel>
-                <Button HorizontalAlignment="Right" VerticalAlignment="Top"
-                        Command="{Binding RefrescarCommand}" Cursor="Hand" BorderThickness="0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="#0F172A" CornerRadius="8" Padding="16,10">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Refresh" Width="15" Height="15" Foreground="White" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Actualizar" Margin="8,0,0,0" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Command="{Binding RefrescarCommand}" Cursor="Hand" BorderThickness="0"
+                        Style="{StaticResource PrimaryButton}" Content="Actualizar" Padding="18,0"/>
             </Grid>
 
-            <!-- KPI fila -->
-            <UniformGrid Columns="4" Margin="0,0,0,20">
-                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,8,0" BorderBrush="#E2E8F0" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="REGISTROS" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
-                        <TextBlock Text="{Binding RegistrosHoy}" FontSize="36" FontWeight="Bold" Foreground="#0F172A" Margin="0,8,0,0"/>
-                        <TextBlock Text="hoy" FontSize="12" Foreground="#94A3B8"/>
-                    </StackPanel>
+            <!-- KPIs con barra de acento izquierda -->
+            <UniformGrid Columns="4" Margin="0,0,0,24">
+
+                <Border Background="White" CornerRadius="12" Margin="0,0,10,0" BorderBrush="#E2E8F0" BorderThickness="1">
+                    <Grid>
+                        <Border Width="4" HorizontalAlignment="Left" Background="#0D9488" CornerRadius="12,0,0,12"/>
+                        <StackPanel Margin="20,18,16,18">
+                            <TextBlock Text="REGISTROS" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
+                            <TextBlock Text="{Binding RegistrosHoy}" FontSize="34" FontWeight="Bold" Foreground="#0F172A" Margin="0,10,0,0"/>
+                            <TextBlock Text="hoy" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
-                <Border Background="White" CornerRadius="12" Padding="20" Margin="4,0,4,0" BorderBrush="#E2E8F0" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="BOLSAS" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
-                        <TextBlock Text="{Binding BolsasHoy}" FontSize="36" FontWeight="Bold" Foreground="#0F172A" Margin="0,8,0,0"/>
-                        <TextBlock Text="producidas hoy" FontSize="12" Foreground="#94A3B8"/>
-                    </StackPanel>
+
+                <Border Background="White" CornerRadius="12" Margin="5,0,5,0" BorderBrush="#E2E8F0" BorderThickness="1">
+                    <Grid>
+                        <Border Width="4" HorizontalAlignment="Left" Background="#0284C7" CornerRadius="12,0,0,12"/>
+                        <StackPanel Margin="20,18,16,18">
+                            <TextBlock Text="BOLSAS" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
+                            <TextBlock Text="{Binding BolsasHoy}" FontSize="34" FontWeight="Bold" Foreground="#0F172A" Margin="0,10,0,0"/>
+                            <TextBlock Text="producidas hoy" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
-                <Border Background="White" CornerRadius="12" Padding="20" Margin="4,0,4,0" BorderBrush="#E2E8F0" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="KILOGRAMOS" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
-                        <TextBlock Text="{Binding KgHoy, StringFormat=N0}" FontSize="36" FontWeight="Bold" Foreground="#0F172A" Margin="0,8,0,0"/>
-                        <TextBlock Text="kg hoy" FontSize="12" Foreground="#94A3B8"/>
-                    </StackPanel>
+
+                <Border Background="White" CornerRadius="12" Margin="5,0,5,0" BorderBrush="#E2E8F0" BorderThickness="1">
+                    <Grid>
+                        <Border Width="4" HorizontalAlignment="Left" Background="#D97706" CornerRadius="12,0,0,12"/>
+                        <StackPanel Margin="20,18,16,18">
+                            <TextBlock Text="KILOGRAMOS" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
+                            <TextBlock Text="{Binding KgHoy, StringFormat=N0}" FontSize="34" FontWeight="Bold" Foreground="#0F172A" Margin="0,10,0,0"/>
+                            <TextBlock Text="kg hoy" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
-                <Border Background="White" CornerRadius="12" Padding="20" Margin="8,0,0,0" BorderBrush="#E2E8F0" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="LOTES" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
-                        <TextBlock Text="{Binding LotesActivos}" FontSize="36" FontWeight="Bold" Foreground="#0F172A" Margin="0,8,0,0"/>
-                        <TextBlock Text="con stock disponible" FontSize="12" Foreground="#94A3B8"/>
-                    </StackPanel>
+
+                <Border Background="White" CornerRadius="12" Margin="10,0,0,0" BorderBrush="#E2E8F0" BorderThickness="1">
+                    <Grid>
+                        <Border Width="4" HorizontalAlignment="Left" Background="#4F46E5" CornerRadius="12,0,0,12"/>
+                        <StackPanel Margin="20,18,16,18">
+                            <TextBlock Text="LOTES" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
+                            <TextBlock Text="{Binding LotesActivos}" FontSize="34" FontWeight="Bold" Foreground="#0F172A" Margin="0,10,0,0"/>
+                            <TextBlock Text="con stock" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
+
             </UniformGrid>
 
-            <Border Background="White" CornerRadius="12" Padding="16,14" Margin="0,0,0,24" BorderBrush="#E2E8F0" BorderThickness="1">
-                <TextBlock Text="{Binding MensajeEstado}" FontSize="14" FontWeight="Medium" Foreground="#334155"/>
+            <!-- Estado -->
+            <Border Background="White" CornerRadius="12" Padding="18,14" Margin="0,0,0,28"
+                    BorderBrush="#E2E8F0" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="10" Height="10" Fill="#10B981" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding MensajeEstado}" Margin="12,0,0,0"
+                               VerticalAlignment="Center" FontSize="14" FontWeight="Medium" Foreground="#334155"/>
+                </StackPanel>
             </Border>
 
-            <TextBlock Text="Navegación" FontSize="13" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,12"/>
+            <!-- Accesos -->
+            <TextBlock Text="ACCESOS RÁPIDOS" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,12"/>
+
             <UniformGrid Columns="3">
-                <Border Background="White" CornerRadius="12" Padding="18" Margin="0,0,8,0" BorderBrush="#E2E8F0" BorderThickness="1">
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,10,0"
+                        BorderBrush="#E2E8F0" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="Nuevo registro" FontWeight="Bold" FontSize="14" Foreground="#0F172A"/>
-                        <TextBlock Text="Cargar producción por turno" FontSize="12" Foreground="#64748B" Margin="0,4,0,0"/>
+                        <Border Background="#F0FDFA" Width="40" Height="40" CornerRadius="10" HorizontalAlignment="Left">
+                            <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Foreground="#0D9488"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Nuevo registro" FontWeight="Bold" FontSize="14" Foreground="#0F172A" Margin="0,14,0,0"/>
+                        <TextBlock Text="Producción por turno" FontSize="12" Foreground="#64748B" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Background="White" CornerRadius="12" Padding="18" Margin="4,0,4,0" BorderBrush="#E2E8F0" BorderThickness="1">
+
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="5,0,5,0"
+                        BorderBrush="#E2E8F0" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="Registro mensual" FontWeight="Bold" FontSize="14" Foreground="#0F172A"/>
-                        <TextBlock Text="Planilla por lote y turno" FontSize="12" Foreground="#64748B" Margin="0,4,0,0"/>
+                        <Border Background="#F0F9FF" Width="40" Height="40" CornerRadius="10" HorizontalAlignment="Left">
+                            <materialDesign:PackIcon Kind="Table" Width="20" Height="20" Foreground="#0284C7"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Registro mensual" FontWeight="Bold" FontSize="14" Foreground="#0F172A" Margin="0,14,0,0"/>
+                        <TextBlock Text="Planilla lote · día · turno" FontSize="12" Foreground="#64748B" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Background="White" CornerRadius="12" Padding="18" Margin="8,0,0,0" BorderBrush="#E2E8F0" BorderThickness="1">
+
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="10,0,0,0"
+                        BorderBrush="#E2E8F0" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="Historial" FontWeight="Bold" FontSize="14" Foreground="#0F172A"/>
+                        <Border Background="#EEF2FF" Width="40" Height="40" CornerRadius="10" HorizontalAlignment="Left">
+                            <materialDesign:PackIcon Kind="History" Width="20" Height="20" Foreground="#4F46E5"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Historial" FontWeight="Bold" FontSize="14" Foreground="#0F172A" Margin="0,14,0,0"/>
                         <TextBlock Text="Consultar y eliminar" FontSize="12" Foreground="#64748B" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
