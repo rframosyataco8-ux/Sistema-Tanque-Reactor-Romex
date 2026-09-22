@@ -6,26 +6,18 @@ namespace SistemaTanqueReactor.ViewModels;
 
 public partial class DashboardViewModel : ObservableObject
 {
-    private readonly CargaService _cargaService;
+    private readonly ProduccionService _service;
 
-    [ObservableProperty]
-    private int _totalCargasHoy;
+    [ObservableProperty] private int _registrosHoy;
+    [ObservableProperty] private int _bolsasHoy;
+    [ObservableProperty] private int _kgHoy;
+    [ObservableProperty] private int _lotesActivos;
+    [ObservableProperty] private string _mensajeEstado = "Cargando...";
+    [ObservableProperty] private bool _isLoading;
 
-    [ObservableProperty]
-    private decimal _totalKgTortaHoy;
-
-    [ObservableProperty]
-    private decimal _totalKgMermaHoy;
-
-    [ObservableProperty]
-    private string _mensajeEstado = "Cargando...";
-
-    [ObservableProperty]
-    private bool _isLoading;
-
-    public DashboardViewModel(CargaService cargaService)
+    public DashboardViewModel(ProduccionService service)
     {
-        _cargaService = cargaService;
+        _service = service;
     }
 
     public async Task CargarDatosAsync()
@@ -33,21 +25,24 @@ public partial class DashboardViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            MensajeEstado = "Cargando datos del día...";
+            MensajeEstado = "Cargando indicadores...";
 
-            var (total, torta, merma) = await _cargaService.ObtenerResumenDiaAsync(DateTime.Today);
+            var hoy = DateTime.Today;
+            var regs = await _service.ObtenerTodosRegistrosAsync(hoy, hoy, null, null);
+            var lotes = await _service.ObtenerLotesConStockAsync();
 
-            TotalCargasHoy = total;
-            TotalKgTortaHoy = torta;
-            TotalKgMermaHoy = merma;
+            RegistrosHoy = regs.Count;
+            BolsasHoy = regs.Sum(r => r.CantidadBolsas);
+            KgHoy = BolsasHoy * 25;
+            LotesActivos = lotes.Count(l => !l.Despachado && l.CantidadBolsasDisponible > 0);
 
-            MensajeEstado = total == 0 
-                ? "No hay cargas registradas hoy" 
-                : $"{total} carga(s) registrada(s) hoy";
+            MensajeEstado = RegistrosHoy == 0
+                ? "Sin registros de producción hoy · Listo para operar"
+                : $"{RegistrosHoy} registro(s) hoy · {BolsasHoy} bolsas · {KgHoy:N0} kg";
         }
         catch (Exception ex)
         {
-            MensajeEstado = $"Error al cargar: {ex.Message}";
+            MensajeEstado = $"Error: {ex.Message}";
         }
         finally
         {
@@ -56,8 +51,5 @@ public partial class DashboardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task Refrescar()
-    {
-        await CargarDatosAsync();
-    }
+    private async Task Refrescar() => await CargarDatosAsync();
 }
