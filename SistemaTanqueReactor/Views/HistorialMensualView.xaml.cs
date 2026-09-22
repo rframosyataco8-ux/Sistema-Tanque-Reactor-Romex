@@ -8,15 +8,21 @@ using SistemaTanqueReactor.ViewModels;
 
 namespace SistemaTanqueReactor.Views;
 
+/// <summary>
+/// Planilla tipo Excel:
+///   [mes centrado sobre días]
+///   [fechas  dd/MM/yyyy  cada una abarca I|II]
+///   Nº DE LOTE | CANTIDAD_BOLSAS | STOCK | I | II | I | II ...
+/// </summary>
 public partial class HistorialMensualView : UserControl
 {
-    private const double W_LOTE = 110;
-    private const double W_BOLSAS = 110;
-    private const double W_STOK = 64;
-    private const double W_TURNO = 44;
+    private const double W_LOTE = 120;
+    private const double W_BOLSAS = 120;
+    private const double W_STOCK = 72;
+    private const double W_TURNO = 48;
     private const double W_FECHA = W_TURNO * 2;
-    private const double W_FIJAS = W_LOTE + W_BOLSAS + W_STOK;
-    private const double H = 30;
+    private const double W_FIJAS = W_LOTE + W_BOLSAS + W_STOCK;
+    private const double H = 32;
 
     private static readonly Thickness B1 = new(1, 1, 1, 1);
     private static readonly Thickness B_TRB = new(0, 1, 1, 1);
@@ -28,9 +34,11 @@ public partial class HistorialMensualView : UserControl
     private static readonly Brush BgHeader = new SolidColorBrush(Color.FromRgb(0x12, 0x14, 0x1C));
     private static readonly Brush BgCell = new SolidColorBrush(Color.FromRgb(0x1A, 0x1D, 0x27));
     private static readonly Brush BgAlt = new SolidColorBrush(Color.FromRgb(0x14, 0x16, 0x1E));
+    private static readonly Brush BgHover = new SolidColorBrush(Color.FromRgb(0x12, 0x25, 0x2C));
     private static readonly Brush TextGx = new SolidColorBrush(Color.FromRgb(0xF1, 0xF5, 0xF9));
     private static readonly Brush CyanGx = new SolidColorBrush(Color.FromRgb(0x00, 0xE5, 0xFF));
     private static readonly Brush MagentaGx = new SolidColorBrush(Color.FromRgb(0xFF, 0x2D, 0x95));
+    private static readonly Brush MutedGx = new SolidColorBrush(Color.FromRgb(0x8B, 0x92, 0xA5));
 
     public HistorialMensualView()
     {
@@ -62,11 +70,13 @@ public partial class HistorialMensualView : UserControl
         int dias = vm.DiasEnMes;
         double wDias = dias * W_FECHA;
 
+        // Fila 1: mes centrado sobre columnas de días
         var filaMes = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
         filaMes.Children.Add(Caja("", W_FIJAS, H, B_LTR, FontWeights.Normal, 11, BgHeader, TextGx));
         filaMes.Children.Add(Caja(vm.TituloMes, wDias, H, B_TR, FontWeights.Bold, 13, BgHeader, CyanGx));
         PlanillaRoot.Children.Add(filaMes);
 
+        // Fila 2: fechas (cada una abarca I + II)
         var filaFechas = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
         filaFechas.Children.Add(Caja("", W_FIJAS, H, new Thickness(1, 0, 0, 0), FontWeights.Normal, 10, BgHeader, TextGx));
         for (int d = 1; d <= dias; d++)
@@ -78,10 +88,11 @@ public partial class HistorialMensualView : UserControl
         }
         PlanillaRoot.Children.Add(filaFechas);
 
+        // Fila 3: headers fijos + I | II
         var filaHead = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
         filaHead.Children.Add(Caja("Nº DE LOTE", W_LOTE, H, B1, FontWeights.SemiBold, 10, BgHeader, CyanGx));
         filaHead.Children.Add(Caja("CANTIDAD_BOLSAS", W_BOLSAS, H, B_TRB, FontWeights.SemiBold, 9, BgHeader, CyanGx));
-        filaHead.Children.Add(Caja("STOOCK", W_STOK, H, B_TRB, FontWeights.SemiBold, 10, BgHeader, CyanGx));
+        filaHead.Children.Add(Caja("STOCK", W_STOCK, H, B_TRB, FontWeights.SemiBold, 10, BgHeader, CyanGx));
         for (int d = 1; d <= dias; d++)
         {
             filaHead.Children.Add(Caja("I", W_TURNO, H, B_TRB, FontWeights.Bold, 12, BgHeader, MagentaGx));
@@ -97,7 +108,7 @@ public partial class HistorialMensualView : UserControl
 
             fila.Children.Add(CajaDato(row[HistorialMensualViewModel.ColLote]?.ToString() ?? "", W_LOTE, bg, new Thickness(1, 0, 1, 1)));
             fila.Children.Add(CajaDato(row[HistorialMensualViewModel.ColBolsas]?.ToString() ?? "", W_BOLSAS, bg, B_RB));
-            fila.Children.Add(CajaDato(row[HistorialMensualViewModel.ColStok]?.ToString() ?? "", W_STOK, bg, B_RB));
+            fila.Children.Add(CajaDato(row[HistorialMensualViewModel.ColStock]?.ToString() ?? "", W_STOCK, bg, B_RB));
 
             for (int d = 1; d <= dias; d++)
             {
@@ -147,6 +158,7 @@ public partial class HistorialMensualView : UserControl
             {
                 Text = texto,
                 FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
                 Foreground = TextGx,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
@@ -165,17 +177,24 @@ public partial class HistorialMensualView : UserControl
             BorderThickness = B_RB,
             Background = bg,
             Cursor = has ? Cursors.Hand : Cursors.Arrow,
+            ToolTip = has ? $"Turno {turno} · Doble clic para detalle" : null,
             Child = new TextBlock
             {
                 Text = valor,
                 FontSize = 12,
                 FontWeight = has ? FontWeights.Bold : FontWeights.Normal,
-                Foreground = has ? (turno == "I" ? MagentaGx : CyanGx) : TextGx,
+                Foreground = has ? (turno == "I" ? MagentaGx : CyanGx) : MutedGx,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             },
             Tag = (row, dia, turno)
         };
+
+        if (has)
+        {
+            b.MouseEnter += (_, _) => b.Background = BgHover;
+            b.MouseLeave += (_, _) => b.Background = bg;
+        }
 
         b.MouseLeftButtonDown += async (_, e) =>
         {
