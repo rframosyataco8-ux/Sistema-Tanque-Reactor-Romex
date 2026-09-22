@@ -90,7 +90,6 @@ public partial class HistorialMensualViewModel : ObservableObject
 
                 row[ColLote] = numeroLote;
                 row[ColBolsas] = loteInfo?.CantidadBolsasInicial ?? 400;
-                // STOCK = bolsas disponibles restantes
                 row[ColStock] = loteInfo?.CantidadBolsasDisponible ?? 400;
 
                 if (agrupado.TryGetValue(numeroLote, out var regsLote))
@@ -115,8 +114,8 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             TablaHistorial = dt;
             Mensaje = dt.Rows.Count == 0
-                ? "Sin lotes para este mes"
-                : $"{dt.Rows.Count} lote(s)  ·  {registros.Count} registro(s)";
+                ? "Sin lotes · Doble clic en celda vacía para cargar cantidad"
+                : $"{dt.Rows.Count} lote(s)  ·  {registros.Count} registro(s)  ·  Doble clic = editar";
         }
         catch (Exception ex)
         {
@@ -167,8 +166,8 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             if (detalle.Count == 0)
             {
-                MessageBox.Show("No hay registros en esta celda.", "Detalle",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                // Sin datos → ofrecer edición
+                await EditarCeldaAsync(numeroLote, dia, turno, "");
                 return;
             }
 
@@ -187,11 +186,56 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             sb.AppendLine(new string('-', 40));
             sb.AppendLine($"TOTAL: {total} bolsas = {total * 25:N0} kg");
-            MessageBox.Show(sb.ToString(), "Detalle de cantidades", MessageBoxButton.OK, MessageBoxImage.Information);
+            sb.AppendLine();
+            sb.AppendLine("¿Editar esta cantidad? (Sí = editar)");
+
+            var res = MessageBox.Show(sb.ToString(), "Detalle · Editar",
+                MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+            if (res == MessageBoxResult.Yes)
+                await EditarCeldaAsync(numeroLote, dia, turno, total.ToString());
         }
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>Edición inline: pide nueva cantidad y guarda ajustando stock.</summary>
+    public async Task EditarCeldaAsync(string numeroLote, int dia, string turno, string valorActual)
+    {
+        try
+        {
+            var fecha = new DateTime(Anio, Mes, dia);
+            string prompt = string.IsNullOrEmpty(valorActual)
+                ? $"Lote {numeroLote} · {fecha:dd/MM/yyyy} · Turno {turno}\n\nCantidad de bolsas (0 para vaciar):"
+                : $"Lote {numeroLote} · {fecha:dd/MM/yyyy} · Turno {turno}\n\nCantidad actual: {valorActual}\nNueva cantidad (0 para vaciar):";
+
+            string? input = Microsoft.VisualBasic.Interaction.InputBox(
+                prompt, "Editar celda", valorActual);
+
+            if (input == null) return; // cancelado en algunos entornos
+            input = input.Trim();
+            if (input.Length == 0 && valorActual.Length == 0) return;
+
+            // Permitir expresión tipo 30+30
+            int nueva;
+            try
+            {
+                nueva = string.IsNullOrWhiteSpace(input) ? 0 : ProduccionService.EvaluarExpresion(input);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Cantidad inválida", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            await _service.EstablecerCantidadCeldaAsync(numeroLote, fecha, turno, nueva);
+            await CargarAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error al editar", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
