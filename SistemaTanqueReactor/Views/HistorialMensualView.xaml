@@ -1,62 +1,37 @@
 <UserControl x:Class="SistemaTanqueReactor.Views.HistorialMensualView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#0C0E14">
 
-    <Grid Background="White">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Año / Mes / MOSTRAR / EXCEL -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal"
-                    HorizontalAlignment="Center" Margin="0,20,0,14">
-
-            <Border BorderBrush="#0F172A" BorderThickness="1.5" CornerRadius="6" Margin="0,0,16,0" Padding="2">
-                <ComboBox ItemsSource="{Binding Anios}"
-                          SelectedItem="{Binding Anio}"
-                          Width="100" Height="34"
-                          FontSize="14" BorderThickness="0"
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,12">
+            <Border Background="#1A1D27" BorderBrush="#2A2E3A" BorderThickness="1" CornerRadius="6" Margin="0,0,12,0" Padding="2">
+                <ComboBox ItemsSource="{Binding Anios}" SelectedItem="{Binding Anio}"
+                          Width="100" Height="36" FontSize="14" BorderThickness="0"
                           VerticalContentAlignment="Center" Padding="8,0"/>
             </Border>
-
-            <Border BorderBrush="#0F172A" BorderThickness="1.5" CornerRadius="6" Margin="0,0,16,0" Padding="2">
-                <ComboBox ItemsSource="{Binding Meses}"
-                          SelectedValue="{Binding Mes}"
-                          SelectedValuePath="Numero"
-                          DisplayMemberPath="Nombre"
-                          Width="140" Height="34"
-                          FontSize="14" BorderThickness="0"
+            <Border Background="#1A1D27" BorderBrush="#2A2E3A" BorderThickness="1" CornerRadius="6" Margin="0,0,12,0" Padding="2">
+                <ComboBox ItemsSource="{Binding Meses}" SelectedValue="{Binding Mes}"
+                          SelectedValuePath="Numero" DisplayMemberPath="Nombre"
+                          Width="140" Height="36" FontSize="14" BorderThickness="0"
                           VerticalContentAlignment="Center" Padding="8,0"/>
             </Border>
-
-            <Border BorderBrush="#0F172A" BorderThickness="1.5" CornerRadius="6" Margin="0,0,12,0">
-                <Button Command="{Binding BuscarCommand}"
-                        Content="MOSTRAR"
-                        Width="110" Height="36"
-                        FontSize="13" FontWeight="SemiBold"
-                        Background="White" BorderThickness="0" Cursor="Hand"/>
-            </Border>
-
-            <Border Background="#0D9488" CornerRadius="6">
-                <Button Command="{Binding ExportarExcelCommand}"
-                        Content="EXCEL"
-                        Width="100" Height="36"
-                        FontSize="13" FontWeight="SemiBold"
-                        Background="Transparent" Foreground="White"
-                        BorderThickness="0" Cursor="Hand"/>
-            </Border>
+            <Button Command="{Binding BuscarCommand}" Content="MOSTRAR" Style="{StaticResource OutlineButton}"
+                    Width="110" Height="36" Margin="0,0,10,0"/>
+            <Button Command="{Binding ExportarExcelCommand}" Content="EXCEL" Style="{StaticResource PrimaryButton}"
+                    Width="100" Height="36"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="1" Text="{Binding Mensaje}"
-                   FontSize="12" Foreground="#64748B"
-                   HorizontalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="1" Text="{Binding Mensaje}" FontSize="12" FontWeight="SemiBold"
+                   Foreground="#8B92A5" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-        <ScrollViewer Grid.Row="2"
-                      HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto"
-                      Margin="16,0,16,16">
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="12,0,12,12">
             <StackPanel x:Name="PlanillaRoot" Orientation="Vertical" HorizontalAlignment="Left"/>
         </ScrollViewer>
     </Grid>

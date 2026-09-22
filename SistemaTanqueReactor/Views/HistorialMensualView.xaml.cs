@@ -24,6 +24,14 @@ public partial class HistorialMensualView : UserControl
     private static readonly Thickness B_LTR = new(1, 1, 1, 0);
     private static readonly Thickness B_TR = new(0, 1, 1, 0);
 
+    private static readonly Brush BorderGx = new SolidColorBrush(Color.FromRgb(0x2A, 0x2E, 0x3A));
+    private static readonly Brush BgHeader = new SolidColorBrush(Color.FromRgb(0x12, 0x14, 0x1C));
+    private static readonly Brush BgCell = new SolidColorBrush(Color.FromRgb(0x1A, 0x1D, 0x27));
+    private static readonly Brush BgAlt = new SolidColorBrush(Color.FromRgb(0x14, 0x16, 0x1E));
+    private static readonly Brush TextGx = new SolidColorBrush(Color.FromRgb(0xF1, 0xF5, 0xF9));
+    private static readonly Brush CyanGx = new SolidColorBrush(Color.FromRgb(0x00, 0xE5, 0xFF));
+    private static readonly Brush MagentaGx = new SolidColorBrush(Color.FromRgb(0xFF, 0x2D, 0x95));
+
     public HistorialMensualView()
     {
         InitializeComponent();
@@ -54,41 +62,37 @@ public partial class HistorialMensualView : UserControl
         int dias = vm.DiasEnMes;
         double wDias = dias * W_FECHA;
 
-        // Fila mes
         var filaMes = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
-        filaMes.Children.Add(Caja("", W_FIJAS, H, B_LTR, FontWeights.Normal, 11));
-        filaMes.Children.Add(Caja(vm.TituloMes, wDias, H, B_TR, FontWeights.Bold, 13));
+        filaMes.Children.Add(Caja("", W_FIJAS, H, B_LTR, FontWeights.Normal, 11, BgHeader, TextGx));
+        filaMes.Children.Add(Caja(vm.TituloMes, wDias, H, B_TR, FontWeights.Bold, 13, BgHeader, CyanGx));
         PlanillaRoot.Children.Add(filaMes);
 
-        // Fila fechas
         var filaFechas = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
-        filaFechas.Children.Add(Caja("", W_FIJAS, H, new Thickness(1, 0, 0, 0), FontWeights.Normal, 10));
+        filaFechas.Children.Add(Caja("", W_FIJAS, H, new Thickness(1, 0, 0, 0), FontWeights.Normal, 10, BgHeader, TextGx));
         for (int d = 1; d <= dias; d++)
         {
             string txt = d - 1 < vm.FechasEncabezado.Count
                 ? vm.FechasEncabezado[d - 1]
                 : $"{d:D2}/{vm.Mes:D2}/{vm.Anio}";
-            filaFechas.Children.Add(Caja(txt, W_FECHA, H, B_TR, FontWeights.SemiBold, 10));
+            filaFechas.Children.Add(Caja(txt, W_FECHA, H, B_TR, FontWeights.SemiBold, 10, BgHeader, TextGx));
         }
         PlanillaRoot.Children.Add(filaFechas);
 
-        // Fila headers: fijas + I | II por día
         var filaHead = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
-        filaHead.Children.Add(Caja("Nº DE LOTE", W_LOTE, H, B1, FontWeights.SemiBold, 10));
-        filaHead.Children.Add(Caja("CANTIDAD_BOLSAS", W_BOLSAS, H, B_TRB, FontWeights.SemiBold, 9));
-        filaHead.Children.Add(Caja("STOOCK", W_STOK, H, B_TRB, FontWeights.SemiBold, 10));
+        filaHead.Children.Add(Caja("Nº DE LOTE", W_LOTE, H, B1, FontWeights.SemiBold, 10, BgHeader, CyanGx));
+        filaHead.Children.Add(Caja("CANTIDAD_BOLSAS", W_BOLSAS, H, B_TRB, FontWeights.SemiBold, 9, BgHeader, CyanGx));
+        filaHead.Children.Add(Caja("STOOCK", W_STOK, H, B_TRB, FontWeights.SemiBold, 10, BgHeader, CyanGx));
         for (int d = 1; d <= dias; d++)
         {
-            filaHead.Children.Add(Caja("I", W_TURNO, H, B_TRB, FontWeights.Bold, 12));
-            filaHead.Children.Add(Caja("II", W_TURNO, H, B_TRB, FontWeights.Bold, 12));
+            filaHead.Children.Add(Caja("I", W_TURNO, H, B_TRB, FontWeights.Bold, 12, BgHeader, MagentaGx));
+            filaHead.Children.Add(Caja("II", W_TURNO, H, B_TRB, FontWeights.Bold, 12, BgHeader, CyanGx));
         }
         PlanillaRoot.Children.Add(filaHead);
 
-        // Datos
         int i = 0;
         foreach (DataRow row in vm.TablaHistorial.Rows)
         {
-            var bg = (i % 2 == 0) ? Brushes.White : new SolidColorBrush(Color.FromRgb(0xF8, 0xFA, 0xFC));
+            var bg = (i % 2 == 0) ? BgCell : BgAlt;
             var fila = new StackPanel { Orientation = Orientation.Horizontal, Height = H };
 
             fila.Children.Add(CajaDato(row[HistorialMensualViewModel.ColLote]?.ToString() ?? "", W_LOTE, bg, new Thickness(1, 0, 1, 1)));
@@ -108,21 +112,21 @@ public partial class HistorialMensualView : UserControl
         }
     }
 
-    private static Border Caja(string texto, double w, double h, Thickness border, FontWeight weight, double size)
+    private static Border Caja(string texto, double w, double h, Thickness border, FontWeight weight, double size, Brush bg, Brush fg)
     {
         return new Border
         {
             Width = w,
             Height = h,
-            BorderBrush = Brushes.Black,
+            BorderBrush = BorderGx,
             BorderThickness = border,
-            Background = Brushes.White,
+            Background = bg,
             Child = new TextBlock
             {
                 Text = texto,
                 FontSize = size,
                 FontWeight = weight,
-                Foreground = Brushes.Black,
+                Foreground = fg,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextWrapping = TextWrapping.NoWrap
@@ -136,14 +140,14 @@ public partial class HistorialMensualView : UserControl
         {
             Width = w,
             Height = H,
-            BorderBrush = Brushes.Black,
+            BorderBrush = BorderGx,
             BorderThickness = border,
             Background = bg,
             Child = new TextBlock
             {
                 Text = texto,
                 FontSize = 12,
-                Foreground = Brushes.Black,
+                Foreground = TextGx,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             }
@@ -152,20 +156,21 @@ public partial class HistorialMensualView : UserControl
 
     private Border CajaTurno(string valor, Brush bg, DataRow row, int dia, string turno)
     {
+        bool has = !string.IsNullOrEmpty(valor);
         var b = new Border
         {
             Width = W_TURNO,
             Height = H,
-            BorderBrush = Brushes.Black,
+            BorderBrush = BorderGx,
             BorderThickness = B_RB,
             Background = bg,
-            Cursor = string.IsNullOrEmpty(valor) ? Cursors.Arrow : Cursors.Hand,
+            Cursor = has ? Cursors.Hand : Cursors.Arrow,
             Child = new TextBlock
             {
                 Text = valor,
                 FontSize = 12,
-                FontWeight = string.IsNullOrEmpty(valor) ? FontWeights.Normal : FontWeights.SemiBold,
-                Foreground = Brushes.Black,
+                FontWeight = has ? FontWeights.Bold : FontWeights.Normal,
+                Foreground = has ? (turno == "I" ? MagentaGx : CyanGx) : TextGx,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             },
