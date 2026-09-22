@@ -97,8 +97,6 @@ public partial class HistorialMensualViewModel : ObservableObject
                     for (int d = 1; d <= DiasEnMes; d++)
                     {
                         var fecha = new DateTime(Anio, Mes, d);
-
-                        // Turno ya viene con Trim() del servicio — separar I y II correctamente
                         int tI = regsLote
                             .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "I")
                             .Sum(r => r.CantidadBolsas);
@@ -106,7 +104,6 @@ public partial class HistorialMensualViewModel : ObservableObject
                             .Where(r => r.FechaProduccion.Date == fecha && r.Turno == "II")
                             .Sum(r => r.CantidadBolsas);
 
-                        // Cada turno en SU celda — nunca sumar I+II juntos
                         row[ColDia(d, "I")] = tI > 0 ? tI.ToString() : "";
                         row[ColDia(d, "II")] = tII > 0 ? tII.ToString() : "";
                     }
@@ -123,7 +120,7 @@ public partial class HistorialMensualViewModel : ObservableObject
         catch (Exception ex)
         {
             Mensaje = $"Error: {ex.Message}";
-            MessageBox.Show(ex.Message, "Error al cargar historial", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.Message, "Error al cargar registro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
         {
@@ -134,6 +131,32 @@ public partial class HistorialMensualViewModel : ObservableObject
     [RelayCommand]
     private async Task Buscar() => await CargarAsync();
 
+    [RelayCommand]
+    private void ExportarExcel()
+    {
+        if (TablaHistorial == null || TablaHistorial.Rows.Count == 0)
+        {
+            MessageBox.Show("No hay datos para exportar. Pulsa MOSTRAR primero.", "Exportar",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        try
+        {
+            bool ok = ExcelExportService.ExportarPlanillaMensual(
+                TablaHistorial, TituloMes, Anio, Mes, DiasEnMes);
+
+            if (ok)
+                MessageBox.Show("Planilla exportada correctamente.", "Excel",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al exportar: {ex.Message}", "Excel",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     public async Task MostrarDetalleAsync(string numeroLote, int dia, string turno)
     {
         try
@@ -143,7 +166,8 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             if (detalle.Count == 0)
             {
-                MessageBox.Show("No hay registros en esta celda.", "Detalle", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("No hay registros en esta celda.", "Detalle",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 

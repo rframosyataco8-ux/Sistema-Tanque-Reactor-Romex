@@ -67,6 +67,30 @@ public partial class HistorialViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ExportarExcel()
+    {
+        if (Registros.Count == 0)
+        {
+            MessageBox.Show("No hay registros para exportar.", "Excel",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        try
+        {
+            bool ok = ExcelExportService.ExportarHistorial(Registros);
+            if (ok)
+                MessageBox.Show("Historial exportado correctamente.", "Excel",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al exportar: {ex.Message}", "Excel",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    [RelayCommand]
     private async Task Eliminar(RegistroProduccion? reg)
     {
         if (reg == null) return;
@@ -82,7 +106,8 @@ public partial class HistorialViewModel : ObservableObject
         try
         {
             await _service.EliminarRegistroAsync(reg.IdRegistro);
-            MessageBox.Show("Registro eliminado y stock restaurado.", "Listo", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Registro eliminado y stock restaurado.", "Listo",
+                MessageBoxButton.OK, MessageBoxImage.Information);
             await BuscarAsync();
         }
         catch (Exception ex)
