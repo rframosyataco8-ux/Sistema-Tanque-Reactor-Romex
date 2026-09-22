@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using SistemaTanqueReactor.ViewModels;
 
@@ -29,6 +30,28 @@ public partial class MainWindow : Window
         SplashOverlay.BeginAnimation(OpacityProperty, anim);
     }
 
+    /// <summary>Arrastra la ventana al hacer clic en la barra de título. Doble clic = maximizar/restaurar.</summary>
+    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2)
+        {
+            BtnMax_Click(sender, e);
+            return;
+        }
+
+        if (e.ButtonState == MouseButtonState.Pressed)
+        {
+            try
+            {
+                DragMove();
+            }
+            catch
+            {
+                // Ignorar si el estado de la ventana no permite DragMove
+            }
+        }
+    }
+
     private void BtnMenu_Click(object sender, RoutedEventArgs e)
     {
         _sidebarOpen = !_sidebarOpen;
@@ -43,7 +66,6 @@ public partial class MainWindow : Window
         };
         ColSidebar.BeginAnimation(ColumnDefinition.WidthProperty, anim);
 
-        // Solo textos del logo y labels de sección; los botones mantienen iconos visibles
         var vis = _sidebarOpen ? Visibility.Visible : Visibility.Collapsed;
         TxtLogoTitle.Visibility = vis;
         TxtLogoSub.Visibility = vis;
@@ -52,7 +74,6 @@ public partial class MainWindow : Window
         SepConfig.Visibility = vis;
         FooterBox.Visibility = vis;
 
-        // Textos de nav: ocultar al colapsar (quedan solo iconos)
         TxtDash.Visibility = vis;
         TxtNuevo.Visibility = vis;
         TxtReg.Visibility = vis;

@@ -7,6 +7,7 @@
         MinHeight="700" MinWidth="1024"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
+        AllowsTransparency="False"
         Background="#F8FAFC"
         FontFamily="Segoe UI"
         TextElement.FontSize="14"
@@ -16,8 +17,13 @@
         RenderOptions.BitmapScalingMode="HighQuality"
         RenderOptions.ClearTypeHint="Enabled">
 
+    <!-- CaptionHeight=56 permite arrastrar la barra superior nativamente -->
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="0" ResizeBorderThickness="5" GlassFrameThickness="0"/>
+        <WindowChrome CaptionHeight="56"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
     <Border BorderBrush="#CBD5E1" BorderThickness="1" Background="#F8FAFC">
@@ -31,7 +37,8 @@
             <Border Grid.Column="0" Background="#020617" x:Name="Sidebar">
                 <DockPanel>
 
-                    <Border DockPanel.Dock="Top" Padding="20,32,20,28">
+                    <Border DockPanel.Dock="Top" Padding="20,32,20,28"
+                            MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                         <StackPanel HorizontalAlignment="Center">
                             <Border Width="52" Height="52" CornerRadius="14" HorizontalAlignment="Center" Margin="0,0,0,12">
                                 <Border.Background>
@@ -115,7 +122,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                <!-- BARRA SUPERIOR: arrastrable -->
+                <Border x:Name="TitleBar" Grid.Row="0" Background="White"
+                        BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                     <Grid Margin="6,0,12,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -124,18 +134,21 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
+                        <!-- WindowChrome.IsHitTestVisibleInChrome=True para que el botón funcione sobre la zona de caption -->
                         <Button Grid.Column="0" Click="BtnMenu_Click" Cursor="Hand"
                                 Width="42" Height="42" Background="Transparent" BorderThickness="0"
-                                ToolTip="Menú">
+                                ToolTip="Menú"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
                             <materialDesign:PackIcon Kind="Menu" Width="22" Height="22" Foreground="#0F172A"/>
                         </Button>
 
                         <TextBlock Grid.Column="1" Text="{Binding CurrentPageTitle}"
                                    FontSize="17" FontWeight="SemiBold" Foreground="#0F172A"
-                                   VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                   VerticalAlignment="Center" Margin="6,0,0,0"
+                                   IsHitTestVisible="False"/>
 
                         <Border Grid.Column="2" Background="#F0FDFA" CornerRadius="8" Padding="12,6" Margin="0,0,10,0"
-                                VerticalAlignment="Center">
+                                VerticalAlignment="Center" IsHitTestVisible="False">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="CalendarMonth" Width="15" Height="15"
                                                          Foreground="#0F766E" VerticalAlignment="Center"/>
@@ -145,13 +158,17 @@
                             </StackPanel>
                         </Border>
 
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Width="36" Height="32" Click="BtnMin_Click" Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="14" Content="─"/>
-                            <Button Width="36" Height="32" Click="BtnMax_Click" Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="11" Content="□"/>
-                            <Button Width="36" Height="32" Click="BtnClose_Click" Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand" Foreground="#EF4444" FontSize="13" Content="✕"/>
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
+                                    WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Button Width="40" Height="32" Click="BtnMin_Click" Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="14" Content="─"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+                            <Button Width="40" Height="32" Click="BtnMax_Click" Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="11" Content="□"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+                            <Button Width="40" Height="32" Click="BtnClose_Click" Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand" Foreground="#EF4444" FontSize="13" Content="✕"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"/>
                         </StackPanel>
                     </Grid>
                 </Border>
