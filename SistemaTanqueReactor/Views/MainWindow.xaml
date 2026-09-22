@@ -8,107 +8,104 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
-        AllowsTransparency="False"
-        Background="#F8FAFC"
+        Background="#0C0E14"
         FontFamily="Segoe UI"
         TextElement.FontSize="14"
-        TextElement.Foreground="#0F172A"
+        TextElement.Foreground="#F1F5F9"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
-        RenderOptions.BitmapScalingMode="HighQuality"
-        RenderOptions.ClearTypeHint="Enabled"
         PreviewKeyDown="Window_PreviewKeyDown">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="56"
-                      ResizeBorderThickness="8"
-                      GlassFrameThickness="0"
-                      CornerRadius="0"
-                      UseAeroCaptionButtons="False"/>
+        <WindowChrome CaptionHeight="48" ResizeBorderThickness="8"
+                      GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
-    <Border BorderBrush="#CBD5E1" BorderThickness="1" Background="#F8FAFC">
+    <Border BorderBrush="#2A2E3A" BorderThickness="1" Background="#0C0E14">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="ColSidebar" Width="250"/>
+                <ColumnDefinition x:Name="ColSidebar" Width="240"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- SIDEBAR -->
-            <Border Grid.Column="0" Background="#020617" x:Name="Sidebar">
+            <!-- SIDEBAR GX -->
+            <Border Grid.Column="0" Background="#0A0C12" x:Name="Sidebar" BorderBrush="#1A1D27" BorderThickness="0,0,1,0">
                 <DockPanel>
 
-                    <Border DockPanel.Dock="Top" Padding="20,32,20,28"
+                    <Border DockPanel.Dock="Top" Padding="16,24,16,20"
                             MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                        <StackPanel HorizontalAlignment="Center">
-                            <Border Width="52" Height="52" CornerRadius="14" HorizontalAlignment="Center" Margin="0,0,0,12">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#14B8A6" Offset="0"/>
-                                        <GradientStop Color="#0F766E" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <TextBlock Text="TR" FontSize="18" FontWeight="Bold" Foreground="White"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock x:Name="TxtLogoTitle" Text="Tanque Reactor" FontSize="15" FontWeight="Bold"
-                                       Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock x:Name="TxtLogoSub" Text="Producción" FontSize="11"
-                                       Foreground="#64748B" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Border Width="40" Height="40" CornerRadius="8">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00E5FF" Offset="0"/>
+                                            <GradientStop Color="#FF2D95" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock Text="TR" FontSize="14" FontWeight="Bold" Foreground="#0C0E14"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock x:Name="TxtLogoTitle" Text="TANQUE REACTOR" FontSize="12" FontWeight="Bold"
+                                       Foreground="#F1F5F9" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <TextBlock x:Name="TxtLogoSub" Text="PRO PRODUCTION" FontSize="9" FontWeight="Bold"
+                                       Foreground="#00E5FF" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
 
-                    <StackPanel DockPanel.Dock="Top" Margin="8,0" x:Name="NavPanel">
-                        <TextBlock x:Name="LblMenu" Text="MENÚ" FontSize="10" FontWeight="Bold"
-                                   Foreground="#475569" Margin="16,0,0,6"/>
+                    <StackPanel DockPanel.Dock="Top" Margin="6,8,6,0" x:Name="NavPanel">
+                        <TextBlock x:Name="LblMenu" Text="NAVIGATION" FontSize="9" FontWeight="Bold"
+                                   Foreground="#5A6275" Margin="14,0,0,8"/>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="Dashboard">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ViewDashboard" Width="20" Height="20" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="ViewDashboard" Width="18" Height="18" VerticalAlignment="Center"/>
                                 <TextBlock Text="Dashboard" Margin="12,0,0,0" VerticalAlignment="Center" x:Name="TxtDash"/>
                             </StackPanel>
                         </Button>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="NuevaCarga">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="PlusCircleOutline" Width="20" Height="20" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="PlusCircleOutline" Width="18" Height="18" VerticalAlignment="Center"/>
                                 <TextBlock Text="Nuevo Registro" Margin="12,0,0,0" VerticalAlignment="Center" x:Name="TxtNuevo"/>
                             </StackPanel>
                         </Button>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="Registro">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Table" Width="20" Height="20" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="Table" Width="18" Height="18" VerticalAlignment="Center"/>
                                 <TextBlock Text="Registro" Margin="12,0,0,0" VerticalAlignment="Center" x:Name="TxtReg"/>
                             </StackPanel>
                         </Button>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="Historial">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ClipboardTextClock" Width="20" Height="20" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="ClipboardTextClock" Width="18" Height="18" VerticalAlignment="Center"/>
                                 <TextBlock Text="Historial" Margin="12,0,0,0" VerticalAlignment="Center" x:Name="TxtHist"/>
                             </StackPanel>
                         </Button>
 
-                        <Border Height="1" Background="#1E293B" Margin="12,14" x:Name="SepConfig"/>
+                        <Border Height="1" Background="#1A1D27" Margin="12,14" x:Name="SepConfig"/>
 
-                        <TextBlock x:Name="LblOtros" Text="OTROS" FontSize="10" FontWeight="Bold"
-                                   Foreground="#475569" Margin="16,0,0,6"/>
+                        <TextBlock x:Name="LblOtros" Text="SYSTEM" FontSize="9" FontWeight="Bold"
+                                   Foreground="#5A6275" Margin="14,0,0,8"/>
 
                         <Button Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="Otros">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Cog" Width="20" Height="20" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="Cog" Width="18" Height="18" VerticalAlignment="Center"/>
                                 <TextBlock Text="Otros" Margin="12,0,0,0" VerticalAlignment="Center" x:Name="TxtOtros"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
 
-                    <Border DockPanel.Dock="Bottom" Margin="14,0,14,20" Background="#0F172A"
-                            CornerRadius="12" Padding="14,12" VerticalAlignment="Bottom" x:Name="FooterBox">
+                    <Border DockPanel.Dock="Bottom" Margin="12,0,12,16" Background="#12141C"
+                            CornerRadius="8" Padding="12,10" VerticalAlignment="Bottom" x:Name="FooterBox"
+                            BorderBrush="#2A2E3A" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="Planta Chincha" FontSize="12" FontWeight="SemiBold"
-                                       Foreground="#94A3B8" HorizontalAlignment="Center"/>
-                            <TextBlock Text="v2.0 · Tanque Reactor" FontSize="10" Foreground="#475569"
+                            <TextBlock Text="PLANTA CHINCHA" FontSize="10" FontWeight="Bold"
+                                       Foreground="#00E5FF" HorizontalAlignment="Center"/>
+                            <TextBlock Text="GX STYLE · v2.0" FontSize="9" Foreground="#5A6275"
                                        HorizontalAlignment="Center" Margin="0,3,0,0"/>
                         </StackPanel>
                     </Border>
@@ -117,16 +114,16 @@
             </Border>
 
             <!-- CONTENIDO -->
-            <Grid Grid.Column="1" Background="#F8FAFC">
+            <Grid Grid.Column="1" Background="#0C0E14">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="56"/>
+                    <RowDefinition Height="48"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Border x:Name="TitleBar" Grid.Row="0" Background="White"
-                        BorderBrush="#E2E8F0" BorderThickness="0,0,0,1"
+                <Border x:Name="TitleBar" Grid.Row="0" Background="#12141C"
+                        BorderBrush="#1A1D27" BorderThickness="0,0,0,1"
                         MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                    <Grid Margin="6,0,12,0">
+                    <Grid Margin="4,0,8,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -135,52 +132,41 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="0" Click="BtnMenu_Click" Cursor="Hand"
-                                Width="42" Height="42" Background="Transparent" BorderThickness="0"
-                                ToolTip="Menú (Ctrl+M)"
+                                Width="40" Height="40" Background="Transparent" BorderThickness="0"
                                 WindowChrome.IsHitTestVisibleInChrome="True">
-                            <materialDesign:PackIcon Kind="Menu" Width="22" Height="22" Foreground="#0F172A"/>
+                            <materialDesign:PackIcon Kind="Menu" Width="20" Height="20" Foreground="#00E5FF"/>
                         </Button>
 
                         <TextBlock Grid.Column="1" Text="{Binding CurrentPageTitle}"
-                                   FontSize="17" FontWeight="SemiBold" Foreground="#0F172A"
-                                   VerticalAlignment="Center" Margin="6,0,0,0"
-                                   IsHitTestVisible="False"/>
+                                   FontSize="14" FontWeight="Bold" Foreground="#F1F5F9"
+                                   VerticalAlignment="Center" Margin="4,0,0,0" IsHitTestVisible="False"/>
 
-                        <Border Grid.Column="2" Background="#F0FDFA" CornerRadius="8" Padding="12,6" Margin="0,0,10,0"
-                                VerticalAlignment="Center" IsHitTestVisible="False">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="CalendarMonth" Width="15" Height="15"
-                                                         Foreground="#0F766E" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding FechaActual, StringFormat='{}{0:ddd d MMM yyyy}'}"
-                                           Margin="8,0,0,0" VerticalAlignment="Center"
-                                           FontSize="12" FontWeight="Medium" Foreground="#0F766E"/>
-                            </StackPanel>
+                        <Border Grid.Column="2" Background="#1A1D27" CornerRadius="4" Padding="10,5" Margin="0,0,10,0"
+                                VerticalAlignment="Center" BorderBrush="#2A2E3A" BorderThickness="1" IsHitTestVisible="False">
+                            <TextBlock Text="{Binding FechaActual, StringFormat='{}{0:ddd d MMM yyyy}'}"
+                                       FontSize="11" FontWeight="SemiBold" Foreground="#00E5FF"/>
                         </Border>
 
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
                                     WindowChrome.IsHitTestVisibleInChrome="True">
-                            <Button Width="40" Height="32" Click="BtnMin_Click" Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="14" Content="─"
-                                    ToolTip="Minimizar"
+                            <Button Width="36" Height="30" Click="BtnMin_Click" Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand" Foreground="#8B92A5" FontSize="12" Content="─"
                                     WindowChrome.IsHitTestVisibleInChrome="True"/>
-                            <Button Width="40" Height="32" Click="BtnMax_Click" Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand" Foreground="#64748B" FontSize="11" Content="□"
-                                    ToolTip="Maximizar (F11)"
+                            <Button Width="36" Height="30" Click="BtnMax_Click" Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand" Foreground="#8B92A5" FontSize="10" Content="□"
                                     WindowChrome.IsHitTestVisibleInChrome="True"/>
-                            <Button Width="40" Height="32" Click="BtnClose_Click" Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand" Foreground="#EF4444" FontSize="13" Content="✕"
-                                    ToolTip="Cerrar (Alt+F4)"
+                            <Button Width="36" Height="30" Click="BtnClose_Click" Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand" Foreground="#FF2D95" FontSize="12" Content="✕"
                                     WindowChrome.IsHitTestVisibleInChrome="True"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <ContentControl Grid.Row="1" Content="{Binding CurrentView}" Margin="24,20,24,24"/>
+                <ContentControl Grid.Row="1" Content="{Binding CurrentView}" Margin="20,16,20,20"/>
             </Grid>
 
-            <!-- Zonas de redimensionamiento manual (esquinas y bordes) -->
-            <Grid Grid.ColumnSpan="2" IsHitTestVisible="True" Panel.ZIndex="50">
-                <!-- Bordes -->
+            <!-- Resize grips -->
+            <Grid Grid.ColumnSpan="2" Panel.ZIndex="50">
                 <Border Height="6" VerticalAlignment="Top" Background="Transparent" Cursor="SizeNS"
                         MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="N"/>
                 <Border Height="6" VerticalAlignment="Bottom" Background="Transparent" Cursor="SizeNS"
@@ -189,38 +175,33 @@
                         MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="W"/>
                 <Border Width="6" HorizontalAlignment="Right" Background="Transparent" Cursor="SizeWE"
                         MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="E"/>
-                <!-- Esquinas -->
                 <Border Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Top"
-                        Background="Transparent" Cursor="SizeNWSE"
-                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="NW"/>
+                        Background="Transparent" Cursor="SizeNWSE" MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="NW"/>
                 <Border Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Top"
-                        Background="Transparent" Cursor="SizeNESW"
-                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="NE"/>
+                        Background="Transparent" Cursor="SizeNESW" MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="NE"/>
                 <Border Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                        Background="Transparent" Cursor="SizeNESW"
-                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SW"/>
+                        Background="Transparent" Cursor="SizeNESW" MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SW"/>
                 <Border Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                        Background="Transparent" Cursor="SizeNWSE"
-                        MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SE"/>
+                        Background="Transparent" Cursor="SizeNWSE" MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SE"/>
             </Grid>
 
-            <!-- Splash -->
-            <Border x:Name="SplashOverlay" Grid.ColumnSpan="2" Background="#020617" Panel.ZIndex="100">
+            <!-- Splash GX -->
+            <Border x:Name="SplashOverlay" Grid.ColumnSpan="2" Background="#0C0E14" Panel.ZIndex="100">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Border Width="68" Height="68" CornerRadius="18" Margin="0,0,0,18">
+                    <Border Width="72" Height="72" CornerRadius="12" Margin="0,0,0,20">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#14B8A6" Offset="0"/>
-                                <GradientStop Color="#0F766E" Offset="1"/>
+                                <GradientStop Color="#00E5FF" Offset="0"/>
+                                <GradientStop Color="#FF2D95" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock Text="TR" FontSize="24" FontWeight="Bold" Foreground="White"
+                        <TextBlock Text="TR" FontSize="26" FontWeight="Bold" Foreground="#0C0E14"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="Tanque Reactor" FontSize="22" FontWeight="Bold"
-                               Foreground="White" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Iniciando..." FontSize="13" Foreground="#64748B"
-                               HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBlock Text="TANQUE REACTOR" FontSize="20" FontWeight="Bold"
+                               Foreground="#F1F5F9" HorizontalAlignment="Center"/>
+                    <TextBlock Text="LOADING GX UI..." FontSize="11" FontWeight="Bold" Foreground="#00E5FF"
+                               HorizontalAlignment="Center" Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
