@@ -28,7 +28,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- SIDEBAR GX -->
             <Border Grid.Column="0" Background="#0A0C12" x:Name="Sidebar" BorderBrush="#1A1D27" BorderThickness="0,0,1,0">
                 <DockPanel>
 
@@ -105,7 +104,7 @@
                         <StackPanel>
                             <TextBlock Text="PLANTA CHINCHA" FontSize="10" FontWeight="Bold"
                                        Foreground="#00E5FF" HorizontalAlignment="Center"/>
-                            <TextBlock Text="GX STYLE · v2.0" FontSize="9" Foreground="#5A6275"
+                            <TextBlock Text="GX STYLE · v2.1" FontSize="9" Foreground="#5A6275"
                                        HorizontalAlignment="Center" Margin="0,3,0,0"/>
                         </StackPanel>
                     </Border>
@@ -113,7 +112,6 @@
                 </DockPanel>
             </Border>
 
-            <!-- CONTENIDO -->
             <Grid Grid.Column="1" Background="#0C0E14">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="48"/>
@@ -129,6 +127,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="0" Click="BtnMenu_Click" Cursor="Hand"
@@ -141,13 +140,28 @@
                                    FontSize="14" FontWeight="Bold" Foreground="#F1F5F9"
                                    VerticalAlignment="Center" Margin="4,0,0,0" IsHitTestVisible="False"/>
 
-                        <Border Grid.Column="2" Background="#1A1D27" CornerRadius="4" Padding="10,5" Margin="0,0,10,0"
+                        <Border Grid.Column="2" Background="#1A1D27" CornerRadius="4" Padding="10,5" Margin="0,0,8,0"
                                 VerticalAlignment="Center" BorderBrush="#2A2E3A" BorderThickness="1" IsHitTestVisible="False">
                             <TextBlock Text="{Binding FechaActual, StringFormat='{}{0:ddd d MMM yyyy}'}"
                                        FontSize="11" FontWeight="SemiBold" Foreground="#00E5FF"/>
                         </Border>
 
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
+                        <!-- Idioma ES / EN -->
+                        <Button Grid.Column="3" Command="{Binding ToggleLanguageCommand}"
+                                Cursor="Hand" Margin="0,0,8,0" VerticalAlignment="Center"
+                                WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Cambiar idioma / Switch language">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="#1A1D27" CornerRadius="4" Padding="10,5"
+                                            BorderBrush="#00E5FF" BorderThickness="1">
+                                        <TextBlock Text="{Binding LangLabel}" FontSize="11" FontWeight="Bold"
+                                                   Foreground="#00E5FF" HorizontalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center"
                                     WindowChrome.IsHitTestVisibleInChrome="True">
                             <Button Width="36" Height="30" Click="BtnMin_Click" Background="Transparent"
                                     BorderThickness="0" Cursor="Hand" Foreground="#8B92A5" FontSize="12" Content="─"
@@ -165,7 +179,6 @@
                 <ContentControl Grid.Row="1" Content="{Binding CurrentView}" Margin="20,16,20,20"/>
             </Grid>
 
-            <!-- Resize grips -->
             <Grid Grid.ColumnSpan="2" Panel.ZIndex="50">
                 <Border Height="6" VerticalAlignment="Top" Background="Transparent" Cursor="SizeNS"
                         MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="N"/>
@@ -185,7 +198,6 @@
                         Background="Transparent" Cursor="SizeNWSE" MouseLeftButtonDown="Resize_MouseLeftButtonDown" Tag="SE"/>
             </Grid>
 
-            <!-- Splash GX -->
             <Border x:Name="SplashOverlay" Grid.ColumnSpan="2" Background="#0C0E14" Panel.ZIndex="100">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Border Width="72" Height="72" CornerRadius="12" Margin="0,0,0,20">
