@@ -10,46 +10,50 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,12">
-            <Border Background="#1A1D27" BorderBrush="#2A2E3A" BorderThickness="1" CornerRadius="6" Margin="0,0,12,0" Padding="2">
+        <Border Grid.Row="0" Background="#1A1D27" CornerRadius="10" Padding="16,12" Margin="0,8,0,10"
+                BorderBrush="#2A2E3A" BorderThickness="1" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
                 <ComboBox ItemsSource="{Binding Anios}" SelectedItem="{Binding Anio}"
-                          Width="100" Height="36" FontSize="14" BorderThickness="0"
-                          VerticalContentAlignment="Center" Padding="8,0"/>
-            </Border>
-            <Border Background="#1A1D27" BorderBrush="#2A2E3A" BorderThickness="1" CornerRadius="6" Margin="0,0,12,0" Padding="2">
+                          Width="100" Height="36" FontSize="14" Margin="0,0,10,0"
+                          VerticalContentAlignment="Center"/>
                 <ComboBox ItemsSource="{Binding Meses}" SelectedValue="{Binding Mes}"
                           SelectedValuePath="Numero" DisplayMemberPath="Nombre"
-                          Width="140" Height="36" FontSize="14" BorderThickness="0"
-                          VerticalContentAlignment="Center" Padding="8,0"/>
-            </Border>
-            <Button Command="{Binding BuscarCommand}" Content="MOSTRAR" Style="{StaticResource OutlineButton}"
-                    Width="110" Height="36" Margin="0,0,10,0"/>
-            <Button Command="{Binding ExportarExcelCommand}" Content="EXCEL" Style="{StaticResource PrimaryButton}"
-                    Width="100" Height="36"/>
+                          Width="150" Height="36" FontSize="14" Margin="0,0,12,0"
+                          VerticalContentAlignment="Center"/>
+                <Button Command="{Binding BuscarCommand}" Content="Mostrar" Style="{StaticResource OutlineButton}"
+                        Width="110" Height="36" Margin="0,0,10,0"/>
+                <Button Command="{Binding ExportarExcelCommand}" Content="Excel" Style="{StaticResource PrimaryButton}"
+                        Width="100" Height="36"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,10" HorizontalAlignment="Center">
+            <TextBlock Text="{Binding Mensaje}" FontSize="12" FontWeight="SemiBold"
+                       Foreground="#8B92A5" HorizontalAlignment="Center"/>
+            <TextBlock Text="I = Turno día  ·  II = Turno noche  ·  Doble clic = editar celda"
+                       FontSize="11" Foreground="#5A6275" HorizontalAlignment="Center" Margin="0,4,0,0"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="1" Text="{Binding Mensaje}" FontSize="12" FontWeight="SemiBold"
-                   Foreground="#8B92A5" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-
-        <!-- Columnas fijas (izq) + días con scroll (der) -->
-        <Grid Grid.Row="2" Margin="12,0,12,12">
+        <Grid Grid.Row="2" Margin="8,0,8,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer x:Name="ScrollFijas" Grid.Column="0"
-                          VerticalScrollBarVisibility="Hidden"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel x:Name="PlanillaFijas" Orientation="Vertical"/>
-            </ScrollViewer>
+            <Border Grid.Column="0" Background="#12141C" BorderBrush="#2A2E3A" BorderThickness="1,1,0,1" CornerRadius="8,0,0,8">
+                <ScrollViewer x:Name="ScrollFijas" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="PlanillaFijas" Orientation="Vertical"/>
+                </ScrollViewer>
+            </Border>
 
-            <ScrollViewer x:Name="ScrollDias" Grid.Column="1"
-                          HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto"
-                          ScrollChanged="ScrollDias_ScrollChanged">
-                <StackPanel x:Name="PlanillaDias" Orientation="Vertical" HorizontalAlignment="Left"/>
-            </ScrollViewer>
+            <Border Grid.Column="1" Background="#12141C" BorderBrush="#2A2E3A" BorderThickness="1" CornerRadius="0,8,8,0">
+                <ScrollViewer x:Name="ScrollDias"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              ScrollChanged="ScrollDias_ScrollChanged">
+                    <StackPanel x:Name="PlanillaDias" Orientation="Vertical" HorizontalAlignment="Left"/>
+                </ScrollViewer>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
