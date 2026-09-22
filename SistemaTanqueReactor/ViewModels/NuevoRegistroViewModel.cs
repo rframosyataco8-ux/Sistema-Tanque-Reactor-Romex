@@ -25,6 +25,7 @@ public partial class NuevoRegistroViewModel : ObservableObject
     [ObservableProperty] private string _errorLote = "";
     [ObservableProperty] private string _errorFecha = "";
     [ObservableProperty] private string _errorCantidad = "";
+    [ObservableProperty] private string _stockInfo = "";
 
     public ObservableCollection<string> Turnos { get; } = new() { "I", "II" };
 
@@ -42,11 +43,37 @@ public partial class NuevoRegistroViewModel : ObservableObject
             FechaProduccion = DateTime.Today.AddDays(-1);
             Mensaje = $"Registrando producción del día {FechaProduccion:dd/MM/yyyy}";
             MostrarResultado = false;
+            StockInfo = "";
             LimpiarErrores();
         }
         catch (Exception ex)
         {
             Mensaje = $"Error: {ex.Message}";
+        }
+    }
+
+    partial void OnNumeroLoteChanged(string value)
+    {
+        _ = ActualizarStockInfoAsync();
+    }
+
+    private async Task ActualizarStockInfoAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NumeroLote))
+        {
+            StockInfo = "";
+            return;
+        }
+        try
+        {
+            var stock = await _service.ObtenerStockDisponibleAsync(NumeroLote.Trim());
+            StockInfo = stock.HasValue
+                ? $"Stock disponible: {stock.Value} bolsas ({stock.Value * 25:N0} kg)"
+                : "Lote nuevo → se creará con 400 bolsas";
+        }
+        catch
+        {
+            StockInfo = "";
         }
     }
 
@@ -104,6 +131,28 @@ public partial class NuevoRegistroViewModel : ObservableObject
             return;
         }
 
+        // Validar stock antes de guardar
+        try
+        {
+            var stock = await _service.ObtenerStockDisponibleAsync(NumeroLote.Trim());
+            int disponible = stock ?? 400; // lote nuevo
+            if (cantidad > disponible)
+            {
+                ErrorCantidad = $"Stock insuficiente ({disponible} bolsas disponibles)";
+                MessageBox.Show(
+                    $"No se puede guardar.\n\nLote: {NumeroLote.Trim()}\nStock disponible: {disponible} bolsas\nCantidad solicitada: {cantidad} bolsas",
+                    "Stock insuficiente",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al verificar stock: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
         CantidadCalculada = cantidad;
         CantidadKg = cantidad * 25;
         MostrarResultado = true;
@@ -139,6 +188,7 @@ public partial class NuevoRegistroViewModel : ObservableObject
 
             var lotes = await _service.ObtenerLotesAsync();
             Lotes = new ObservableCollection<string>(lotes);
+            await ActualizarStockInfoAsync();
         }
         catch (Exception ex)
         {
