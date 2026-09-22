@@ -11,37 +11,36 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#1A1D27" CornerRadius="8" Padding="18" Margin="0,0,0,14"
-                BorderBrush="#2A2E3A" BorderThickness="1">
+        <Border Grid.Row="0" Style="{StaticResource ModernCard}" Padding="20" Margin="0,0,0,16">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="1.2*"/>
-                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="DESDE" Style="{StaticResource FieldLabel}"/>
-                    <DatePicker SelectedDate="{Binding FiltroDesde}" Height="40"/>
+                    <DatePicker SelectedDate="{Binding FiltroDesde}" Height="42"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="HASTA" Style="{StaticResource FieldLabel}"/>
-                    <DatePicker SelectedDate="{Binding FiltroHasta}" Height="40"/>
+                    <DatePicker SelectedDate="{Binding FiltroHasta}" Height="42"/>
                 </StackPanel>
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="LOTE" Style="{StaticResource FieldLabel}"/>
-                    <TextBox Text="{Binding FiltroLote, UpdateSourceTrigger=PropertyChanged}" Height="40"
+                    <TextBox Text="{Binding FiltroLote, UpdateSourceTrigger=PropertyChanged}" Height="42"
                              materialDesign:HintAssist.Hint="Nº lote..."/>
                 </StackPanel>
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="TURNO" Style="{StaticResource FieldLabel}"/>
-                    <ComboBox ItemsSource="{Binding TurnosFiltro}" SelectedItem="{Binding FiltroTurno}" Height="40"/>
+                    <ComboBox ItemsSource="{Binding TurnosFiltro}" SelectedItem="{Binding FiltroTurno}" Height="42"/>
                 </StackPanel>
                 <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Bottom">
                     <Button Style="{StaticResource PrimaryButton}" Command="{Binding BuscarCommand}" Content="Buscar" Margin="0,0,8,0"/>
@@ -51,25 +50,17 @@
             </Grid>
         </Border>
 
-        <TextBlock Grid.Row="1" Text="{Binding Mensaje}" Margin="0,0,0,10"
+        <TextBlock Grid.Row="1" Text="{Binding Mensaje}" Margin="0,0,0,12"
                    Foreground="#8B92A5" FontSize="12" FontWeight="SemiBold"/>
 
-        <Border Grid.Row="2" Background="#1A1D27" CornerRadius="8" BorderBrush="#2A2E3A" BorderThickness="1" ClipToBounds="True">
+        <Border Grid.Row="2" Background="#1A1D27" CornerRadius="12" BorderBrush="#2A2E3A" BorderThickness="1" ClipToBounds="True">
             <DataGrid ItemsSource="{Binding Registros}" AutoGenerateColumns="False" IsReadOnly="True"
                       CanUserAddRows="False" HeadersVisibility="Column" BorderThickness="0"
                       GridLinesVisibility="None" Background="#1A1D27"
                       AlternatingRowBackground="#12141C" RowBackground="#1A1D27"
-                      RowHeight="46" ColumnHeaderHeight="44" FontSize="13" Foreground="#F1F5F9">
+                      RowHeight="48" ColumnHeaderHeight="48" FontSize="13" Foreground="#F1F5F9">
                 <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#12141C"/>
-                        <Setter Property="Foreground" Value="#00E5FF"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="FontSize" Value="11"/>
-                        <Setter Property="Padding" Value="14,10"/>
-                        <Setter Property="BorderBrush" Value="#2A2E3A"/>
-                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                    </Style>
+                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource DataGridHeaderGx}"/>
                 </DataGrid.ColumnHeaderStyle>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="FECHA" Binding="{Binding FechaProduccion, StringFormat=dd/MM/yyyy}" Width="110"/>
@@ -79,16 +70,16 @@
                     <DataGridTextColumn Header="KG" Binding="{Binding CantidadKg, StringFormat=N0}" Width="90"/>
                     <DataGridTextColumn Header="EXPRESIÓN" Binding="{Binding ExpresionCantidad}" Width="*"/>
                     <DataGridTextColumn Header="USUARIO" Binding="{Binding UsuarioRegistro}" Width="120"/>
-                    <DataGridTextColumn Header="REGISTRADO" Binding="{Binding FechaRegistro, StringFormat=dd/MM/yyyy HH:mm}" Width="140"/>
+                    <DataGridTextColumn Header="REGISTRADO" Binding="{Binding FechaRegistro, StringFormat=dd/MM/yyyy HH:mm}" Width="150"/>
                     <DataGridTemplateColumn Header="" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="Eliminar" Padding="10,5" Cursor="Hand" FontSize="11" FontWeight="Bold"
+                                <Button Content="Eliminar" Padding="12,6" Cursor="Hand" FontSize="11" FontWeight="Bold"
                                         Command="{Binding DataContext.EliminarCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="#3A1528" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <Border Background="#3A1528" CornerRadius="6" Padding="{TemplateBinding Padding}">
                                                 <TextBlock Text="Eliminar" Foreground="#FF2D95" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center"/>
                                             </Border>
                                         </ControlTemplate>

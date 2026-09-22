@@ -14,7 +14,6 @@
             <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-            <!-- Opera GX palette -->
             <SolidColorBrush x:Key="GxBg" Color="#0C0E14"/>
             <SolidColorBrush x:Key="GxPanel" Color="#12141C"/>
             <SolidColorBrush x:Key="GxCard" Color="#1A1D27"/>
@@ -29,37 +28,38 @@
                 <Setter Property="Foreground" Value="#F1F5F9"/>
                 <Setter Property="CaretBrush" Value="#00E5FF"/>
                 <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Background" Value="#1A1D27"/>
+                <Setter Property="Background" Value="#12141C"/>
+                <Setter Property="Padding" Value="12,10"/>
             </Style>
 
             <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
                 <Setter Property="Foreground" Value="#F1F5F9"/>
                 <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Background" Value="#1A1D27"/>
+                <Setter Property="Background" Value="#12141C"/>
             </Style>
 
             <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
                 <Setter Property="Foreground" Value="#F1F5F9"/>
                 <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Background" Value="#1A1D27"/>
+                <Setter Property="Background" Value="#12141C"/>
             </Style>
 
             <Style TargetType="DatePickerTextBox">
                 <Setter Property="Foreground" Value="#F1F5F9"/>
                 <Setter Property="CaretBrush" Value="#00E5FF"/>
-                <Setter Property="Background" Value="#1A1D27"/>
+                <Setter Property="Background" Value="#12141C"/>
             </Style>
 
             <Style TargetType="DataGridCell">
                 <Setter Property="Foreground" Value="#F1F5F9"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Padding" Value="14,10"/>
+                <Setter Property="Padding" Value="16,12"/>
                 <Setter Property="FontSize" Value="13"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridCell">
                             <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
-                                    BorderBrush="#2A2E3A" BorderThickness="0,0,0,1">
+                                    BorderBrush="#1A1D27" BorderThickness="0,0,0,1">
                                 <ContentPresenter VerticalAlignment="Center"/>
                             </Border>
                         </ControlTemplate>
@@ -67,7 +67,7 @@
                 </Setter>
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#1E3A4A"/>
+                        <Setter Property="Background" Value="#12252C"/>
                         <Setter Property="Foreground" Value="#00E5FF"/>
                     </Trigger>
                 </Style.Triggers>
@@ -75,15 +75,10 @@
 
             <Style x:Key="ModernCard" TargetType="Border">
                 <Setter Property="Background" Value="#1A1D27"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="22"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="24"/>
                 <Setter Property="BorderBrush" Value="#2A2E3A"/>
                 <Setter Property="BorderThickness" Value="1"/>
-            </Style>
-
-            <Style x:Key="KpiCard" TargetType="Border" BasedOn="{StaticResource ModernCard}">
-                <Setter Property="Padding" Value="20"/>
-                <Setter Property="MinHeight" Value="120"/>
             </Style>
 
             <Style x:Key="PrimaryButton" TargetType="Button">
@@ -91,15 +86,15 @@
                 <Setter Property="Foreground" Value="#0C0E14"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Padding" Value="20,10"/>
-                <Setter Property="Height" Value="40"/>
+                <Setter Property="Padding" Value="22,0"/>
+                <Setter Property="Height" Value="42"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{TemplateBinding Background}"
-                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -120,20 +115,20 @@
                 <Setter Property="Foreground" Value="#00E5FF"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Padding" Value="18,10"/>
-                <Setter Property="Height" Value="40"/>
+                <Setter Property="Padding" Value="20,0"/>
+                <Setter Property="Height" Value="42"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{TemplateBinding Background}"
                                     BorderBrush="#00E5FF" BorderThickness="1.5"
-                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#1A2A30"/>
+                                    <Setter TargetName="bd" Property="Background" Value="#12252C"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -143,12 +138,12 @@
 
             <Style x:Key="NavButton" TargetType="Button">
                 <Setter Property="Height" Value="44"/>
-                <Setter Property="Margin" Value="8,2"/>
+                <Setter Property="Margin" Value="10,3"/>
                 <Setter Property="HorizontalContentAlignment" Value="Left"/>
                 <Setter Property="Foreground" Value="#8B92A5"/>
                 <Setter Property="FontSize" Value="13"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Padding" Value="12,0"/>
+                <Setter Property="Padding" Value="14,0"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -156,8 +151,7 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{TemplateBinding Background}"
-                                    CornerRadius="6" Padding="{TemplateBinding Padding}"
-                                    BorderThickness="0,0,0,0">
+                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -176,16 +170,38 @@
             </Style>
 
             <Style x:Key="SectionTitle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontSize" Value="20"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="Foreground" Value="#F1F5F9"/>
+            </Style>
+
+            <Style x:Key="PageSubtitle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Foreground" Value="#8B92A5"/>
+                <Setter Property="Margin" Value="0,4,0,0"/>
             </Style>
 
             <Style x:Key="FieldLabel" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="11"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="Foreground" Value="#8B92A5"/>
-                <Setter Property="Margin" Value="0,0,0,6"/>
+                <Setter Property="Margin" Value="0,0,0,8"/>
+            </Style>
+
+            <Style x:Key="ErrorText" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Foreground" Value="#FF2D95"/>
+                <Setter Property="Margin" Value="0,6,0,0"/>
+            </Style>
+
+            <Style x:Key="DataGridHeaderGx" TargetType="DataGridColumnHeader">
+                <Setter Property="Background" Value="#12141C"/>
+                <Setter Property="Foreground" Value="#00E5FF"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="Padding" Value="16,14"/>
+                <Setter Property="BorderBrush" Value="#2A2E3A"/>
+                <Setter Property="BorderThickness" Value="0,0,0,1"/>
             </Style>
 
         </ResourceDictionary>
