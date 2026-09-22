@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaTanqueReactor.Models;
 using SistemaTanqueReactor.Services;
+using SistemaTanqueReactor.Views;
 using System.Windows;
 
 namespace SistemaTanqueReactor.ViewModels;
@@ -166,7 +167,6 @@ public partial class HistorialMensualViewModel : ObservableObject
 
             if (detalle.Count == 0)
             {
-                // Sin datos → ofrecer edición
                 await EditarCeldaAsync(numeroLote, dia, turno, "");
                 return;
             }
@@ -187,7 +187,7 @@ public partial class HistorialMensualViewModel : ObservableObject
             sb.AppendLine(new string('-', 40));
             sb.AppendLine($"TOTAL: {total} bolsas = {total * 25:N0} kg");
             sb.AppendLine();
-            sb.AppendLine("¿Editar esta cantidad? (Sí = editar)");
+            sb.AppendLine("¿Editar esta cantidad?");
 
             var res = MessageBox.Show(sb.ToString(), "Detalle · Editar",
                 MessageBoxButton.YesNo, MessageBoxImage.Information);
@@ -201,24 +201,20 @@ public partial class HistorialMensualViewModel : ObservableObject
         }
     }
 
-    /// <summary>Edición inline: pide nueva cantidad y guarda ajustando stock.</summary>
     public async Task EditarCeldaAsync(string numeroLote, int dia, string turno, string valorActual)
     {
         try
         {
             var fecha = new DateTime(Anio, Mes, dia);
             string prompt = string.IsNullOrEmpty(valorActual)
-                ? $"Lote {numeroLote} · {fecha:dd/MM/yyyy} · Turno {turno}\n\nCantidad de bolsas (0 para vaciar):"
-                : $"Lote {numeroLote} · {fecha:dd/MM/yyyy} · Turno {turno}\n\nCantidad actual: {valorActual}\nNueva cantidad (0 para vaciar):";
+                ? $"Lote {numeroLote} · {fecha:dd/MM/yyyy} · Turno {turno}\n\nCantidad de bolsas (0 para vaciar). Puedes usar 30+30:"
+                : $"Lote {numeroLote} · {fecha:dd/MM/yyyy} · Turno {turno}\n\nActual: {valorActual} bolsas\nNueva cantidad (0 para vaciar):";
 
-            string? input = Microsoft.VisualBasic.Interaction.InputBox(
-                prompt, "Editar celda", valorActual);
+            var owner = Application.Current?.MainWindow;
+            string? input = InputDialog.Show(owner, prompt, valorActual);
+            if (input == null) return;
 
-            if (input == null) return; // cancelado en algunos entornos
             input = input.Trim();
-            if (input.Length == 0 && valorActual.Length == 0) return;
-
-            // Permitir expresión tipo 30+30
             int nueva;
             try
             {
